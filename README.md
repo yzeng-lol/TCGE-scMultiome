@@ -1,4 +1,5 @@
-# TCGE-scMultiome: TCGE scMultiome Data QC and Analysis Pipeline (v1.0.0-beta)
+# iSHARC: **I**ntegrating **s**cMultiome data for **h**eterogeneity **a**nd **r**egulatory analysis in **c**ancer (v1.0.0-beta)
+
 
 ## Intoduction
 This pipeline is designed for automated end-to-end quality control (QC) and analysis of scMultiome data. The pipeline was developed by [Yong Zeng](mailto:yzeng@uhnresearch.ca) based on some prior work of Mathieu Lupien Lab.
@@ -26,22 +27,22 @@ This schematic diagram shows you how pipeline will be working:
 2) Git clone this pipeline.
 	```bash
 	$ cd
-	$ git clone https://github.com/yzeng-lol/TCGE-scMultiome
+	$ git clone https://github.com/yzeng-lol/iSHARC
 	```
 
 3) Install pipeline\'s core enviroment
 	```bash
-	$ cd TCGE-scMultiome
+	$ cd iSHARC
 	$ conda activate base
 	$ mamba env create --file conda_env.yaml
 	```
 
 4) Test run
 	> **IMPORTANT**: EXTRA ENVIRONMENTS WILL BE INSTALLED, MAKE SURE YOU STILL HAVE INTERNET ACCESS.
-	
+
 
 5) Run on HPCs
-
+  (Under construction ...)
 	You can also submit this pipeline to clusters with the template ./workflow/sbatch_Snakefile_template.sh. This template is for SLURM, however, it could be modified to different resource management systems. More details about cluster configuration can be found at [here](https://snakemake.readthedocs.io/en/stable/executing/cluster.html).
 
 	```bash
