@@ -1,0 +1,28 @@
+##############################
+###  conda_env_R.yaml  #######
+
+## conda_env.ymal
+conda install -c anaconda graphviz
+...
+conda env export -c bioconda  --from-history | grep -v "^prefix" >  conda_env.yaml
+
+
+###############################
+##### test run on H4H  #######
+###############################
+conda activate iSHARC
+
+
+########################################
+## generate the DGA plots with dot -Tsvg
+## for paired-end inputs
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_template.yaml \
+          -p --dag | dot -Tpdf > /cluster/home/yzeng/snakemake/iSHARC_res/dag.pdf 
+
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_template.yaml \
+	  --conda-prefix ${CONDA_PREFIX}_extra_env \          
+          --use-conda -pn
+ 
+
