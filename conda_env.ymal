@@ -1,0 +1,5 @@
+name: iSHARC
+channels:
+  - bioconda
+dependencies:
+  - snakemake=6.12.3
