@@ -2,4 +2,4 @@ name: iSHARC
 channels:
   - bioconda
 dependencies:
-  - snakemake = 7.25.0 
+  - snakemake = 7.25.0

@@ -8,7 +8,8 @@
 ## loading rule modules
 include: "rules/extra_env.smk"         ## chekc & install all extra env
 include: "rules/common.smk"            ## self-defined functions
-#include: "rules/cellranger-arc.smk"    ## cellranger-arc mapping, QC and joint cell calling
+include: "rules/cellranger_arc.smk"    ## cellranger-arc mapping, QC and joint cell calling
+include: "rules/main_seurat.smk"
 
 ###################
 ## targeted outputs

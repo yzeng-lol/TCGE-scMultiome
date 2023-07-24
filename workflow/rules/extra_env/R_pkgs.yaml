@@ -12,3 +12,26 @@ dependencies:
   - r-qlcmatrix = 0.9.7
   - r-future = 1.33.0
   - bioconductor-ensdb.hsapiens.v86 = 2.99.0
+  ## dependencies for seurat_path
+  - r-cluster
+  - r-cowplot
+  - r-fitdistrplus
+  - r-ggrepel
+  - r-ggridges
+  - r-ica
+  - r-igraph
+  - r-kernsmooth
+  - r-leiden
+  - r-lmtest
+  - r-plotly
+  - r-rann
+  - r-rcppannoy
+  - r-reticulate
+  - r-rocr
+  - r-rtsne
+  - r-scattermore
+  - r-sctransform
+  - r-spatstat.explore
+  - r-spatstat.geom
+  - r-uwot
+  - r-rcppprogress

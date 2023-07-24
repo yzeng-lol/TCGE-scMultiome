@@ -18,8 +18,9 @@ rule install_extra_env_4_cellranger_arc:
     output:
         'extra_env/cellranger_arc_{sample}'
     shell:
-        "export PATH=/cluster/tools/software/centos7/cellranger-arc/2.0.2:$PATH | "
-        "touch {output}"
+        "touch {output}  && "
+        "export PATH=/cluster/tools/software/centos7/cellranger-arc/2.0.2:$PATH && "
+        "echo $PATH >>  {output}"
 
 rule install_extra_env_4_seurat:
     output:
