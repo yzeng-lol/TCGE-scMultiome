@@ -1,5 +1,9 @@
 name: iSHARC
 channels:
   - bioconda
+  - conda-forge
 dependencies:
   - snakemake = 7.25.0
+  - macs2 = 2.2.9.1
+  - aioeasywebdav
+  - libgcc-ng

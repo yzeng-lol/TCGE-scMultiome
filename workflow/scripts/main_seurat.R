@@ -1,28 +1,35 @@
+args = commandArgs(trailingOnly=TRUE)
+
+## assigning commandArgs
+sample_id   = args[1]
+filtered_h5 = args[2]
+frag_file   = args[3]
+macs2_dir   = args[4]
+
+regCellCycle = TRUE
+
+
 ##################################################
 ## The main workflow for scMultiome data analysis
 ## loading required packages
 ##################################################
 {
-library(Seurat)
 library(hdf5r)           ## to read HDF5 files
+library(Seurat)
 library(Signac)
 library(dplyr)
 library(ggplot2)
 library(qlcMatrix)        ## for LinkPeaks
 library(future)           ## for paralleling
-library("biovizBase")
+library(biovizBase)
 library(EnsDb.Hsapiens.v86)
-library(BSgenome.Hsapiens.UCSC.hg38)
-
-
-macs2.path = "/Users/yong/mambaforge/bin/macs2"      ## call peak
+#library(BSgenome.Hsapiens.UCSC.hg38)
 
 ###################################################################
-## packages dependencies for the seurat are required in R_pkgs.yaml
+## packages installed from "dependencies"
 
 library(devtools)
-# devtools::load_all(seurat_path)
-devtools::load_all("/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/seurat")
+# devtools::load_all(pkgs_path)
 }
 
 
@@ -37,39 +44,27 @@ devtools::load_all("/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/s
 ## the 10x hdf5 file contains both data types.
 ###########################################################################
 
-setwd("/cluster/projects/tcge/scMultiome/iSHARC_test/pbmc")
-
 #######################################
 ## inputs and parameters initialization
 #######################################
 {
 ## hdf 5 file after joint cell calling
-inputdata <- Read10X_h5("./filtered_feature_bc_matrix.h5")
+#inputdata <- Read10X_h5("./filtered_feature_bc_matrix.h5")
+inputdata <- Read10X_h5(filtered_h5)
+
 
 ## ATAC-seq fragments file
-frag.file <- "atac_fragments.tsv.gz"
+frag.file <- frag_file
 
 ### gene annotations
-
 annotations <- GetGRangesFromEnsDb(ensdb = EnsDb.Hsapiens.v86)
 seqlevelsStyle(annotations) <- 'UCSC'
 annotations_v <- "hg38"
 genome(annotations) <- annotations_v
 
-library(BSgenome.Hsapiens.UCSC.hg38)
-bsgenome <- BSgenome.Hsapiens.UCSC.hg38     ## for GC correction
-
-## path of MACS2 for ATAC-seq peak calling
-macs2.path = "/Users/yong/mambaforge/bin/macs2"
 
 ## Parallelization using plan for both seurat and signac
 ## plan("multiprocess", workers = 4)
-
-## parameters setting
-## whether to regress out cell cycle confounding factors
-regCellCycle = TRUE
-
-
 }
 
 ######################################
@@ -109,7 +104,7 @@ rm(atac_counts, chrom_assay)
 ########################
 ## call peaks using MAC2
 DefaultAssay(scMultiome) <- "atac_arc"
-peaks <- CallPeaks(scMultiome, macs2.path = macs2.path). ## add more parem
+peaks <- CallPeaks(scMultiome, macs2.path = macs2_dir). ## add more parem
 
 # remove peaks on nonstandard chromosomes and in genomic blacklist regions
 peaks <- keepStandardChromosomes(peaks, pruning.mode = "coarse")
@@ -177,7 +172,6 @@ scMultiome <- subset(
     nCount_ATAC > 5e3 &
     nucleosome_signal < 2 &
     TSS.enrichment > 1)
-
 }
 
 
@@ -357,6 +351,7 @@ k = 1
 for (i in 1:(L-1))
 {
   ## all pair-wise comparison
+  if(FALSE){
   for(j in (i + 1): L)
   {
     sct_deg[[k]] <- FindMarkers(scMultiome, ident.1 = clusters[i], ident.2 = clusters[j],
@@ -366,6 +361,7 @@ for (i in 1:(L-1))
                                 )
     sct_deg_names[k] <- paste0(clusters[i], "_vs_", clusters[j])
     k = k + 1
+  }
   }
 
   ## one vs all others: prefiltering
@@ -393,6 +389,7 @@ k = 1
 for (i in 1:(L-1))
 {
   ## all pair-wise comparison
+  if(FALSE){
   for(j in (i + 1): L)
   {
     atac_dar[[k]] <- FindMarkers(scMultiome, ident.1 = clusters[i], ident.2 = clusters[j],
@@ -404,6 +401,7 @@ for (i in 1:(L-1))
     )
     atac_dar_names[k] <- paste0(clusters[i], "_vs_", clusters[j])
     k = k + 1
+  }
   }
 
   ## one vs all others: prefiltering
@@ -428,8 +426,11 @@ Misc(scMultiome, slot = "ATAC_DARs") <- atac_dar
 ## Linking peaks to genes and vice versa
 ## limit to DEGs or DARs ???
 #######################################
-{
+if(FALSE){
 DefaultAssay(scMultiome) <- "ATAC"
+
+library(BSgenome.Hsapiens.UCSC.hg38)
+bsgenome <- BSgenome.Hsapiens.UCSC.hg38     ## for GC correction
 
 # first compute the GC content for each peak
 scMultiome <- RegionStats(scMultiome, genome = bsgenome)
@@ -452,10 +453,9 @@ scMultiome <- LinkPeaks(
 ## eg testing
 reg_names <- rownames(scMultiome@misc$ATAC_DARs[[1]])
 closest_genes_2reg <- ClosestFeature(scMultiome, regions = reg_names)
-
 }
 
 ##############
 ## output data
 ##############
-saveRDS(scMultiome, file = "scMultiome.RDS")
+saveRDS(scMultiome, file = paste0(sample_id, ".RDS")

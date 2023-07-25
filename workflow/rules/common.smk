@@ -7,7 +7,7 @@ import pandas as pd
 ## paths for pipeline and/or reference data
 work_dir = config["work_dir"]
 pipe_dir = config["pipe_dir"]
-
+env_dir = os.getenv("CONDA_PREFIX")
 
 ######################################################
 ## read in sample and corresponding library file table

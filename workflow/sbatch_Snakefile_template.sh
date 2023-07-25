@@ -31,11 +31,10 @@ snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
 
 snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
           --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
-          --cluster-config /cluster/home/yzeng/snakemake/iSHARC/config/cluster_std_err.json \
+          --cluster-config /cluster/home/yzeng/snakemake/iSHARC/workflow/config/cluster_std_err.json \
           --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
-          --cluster "sbatch -p himem -c 12 --mem=60G -J -o {cluster.std} -e {cluster.err}" \
+          --cluster "sbatch -p himem -c 12 --mem=60G -J {cluster.jid} -o {cluster.std} -e {cluster.err}" \
           --latency-wait 60 --jobs 2 -p
-
 
 
 conda deactivate

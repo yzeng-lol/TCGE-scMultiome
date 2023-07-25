@@ -10,11 +10,12 @@ rule main_seurat:
     resources:
         mem_mb=60000
     params:
-        scr_dir = config["pipe_dir"]
+        scr_dir = config["pipe_dir"],
+        macs2_dir = env_dir
     log:
         "main_seurat/{sample}_main_seurat.log"
     conda:
         "extra_env/R_pkgs.yaml"
     shell:
         "(Rscript --vanilla {params.scr_dir}/workflow/scripts/main_seurat.R "
-        "{wildcards.sample} {input.gex} {input.atac}) 2> {log}"
+        "{wildcards.sample} {input.gex} {input.atac} {params.macs2_dir}/bin/macs2) 2> {log}"

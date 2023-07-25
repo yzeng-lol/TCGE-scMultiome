@@ -15,8 +15,10 @@ rule cellranger_arc_count:
     log:
         "logs/{sample}_cellranger_arc_count.log"
     shell:
+        ## output will create the {sample} folder prior the cellranger, leading to error of
+        ## {sample} is not a pipestance directory for cellranger
         "(export PATH={params.arc_dir}:$PATH && "
-        "cellranger-arc count --id {wildcards.sample} --reference={input[0]} "
+        "cd {params.out_dir}/arc_count && "
+        "cellranger-arc count --id {wildcards.sample}_res --reference={input[0]} "
         "--libraries={input[1]}  --localcores={threads} && "
-        ## cellranger will created ID folder in work_dir
-        "mv {wildcards.sample} {params.out_dir}/arc_count/) 2> {log}"
+        "rm -r {wildcards.sample} && mv {wildcards.sample}_res {wildcards.sample}) 2> {log}"

@@ -2,36 +2,24 @@ name: R_pkgs
 channels:
   - conda-forge
   - bioconda
-  #- r
+  - paul.martin-2                          ## for r-doubletfinder
 dependencies:
-  - r-signac = 1.10.0
-  - r-hdf5r = 1.3.8
-  - r-devtools = 2.4.5
-  - r-dplyr = 1.1.2
-  - r-ggplot2 = 3.4.2
-  - r-qlcmatrix = 0.9.7
-  - r-future = 1.33.0
-  - bioconductor-ensdb.hsapiens.v86 = 2.99.0
-  ## dependencies for seurat_path
-  - r-cluster
-  - r-cowplot
-  - r-fitdistrplus
-  - r-ggrepel
-  - r-ggridges
-  - r-ica
-  - r-igraph
-  - r-kernsmooth
-  - r-leiden
-  - r-lmtest
-  - r-plotly
-  - r-rann
-  - r-rcppannoy
-  - r-reticulate
-  - r-rocr
-  - r-rtsne
-  - r-scattermore
-  - r-sctransform
-  - r-spatstat.explore
-  - r-spatstat.geom
-  - r-uwot
-  - r-rcppprogress
+  ## specify versions will cause pkgs incompatible
+  - r-seurat
+  - r-signac                       ## analysis scATAC-seq data
+  - r-monocle3                     ## build single-cell trajectories
+  - r-doubletfinder                        ## predicts doublets in scRNA-seq data
+  - r-soupx                        ## remove ambient mRNA contamination
+  - r-hdf5r
+  - r-devtools
+  - r-dplyr
+  - r-ggplot2
+  - r-qlcmatrix
+  - r-future
+  - bioconductor-infercnv          ## infer the CNV: Copy Nubmer Variation
+  - bioconductor-singler           ## auto annotation by reference
+  - bioconductor-aucell            ## auto annotation by markers
+  - bioconductor-chromvar
+  - bioconductor-biovizbase
+  - bioconductor-ensdb.hsapiens.v86               ## annotations
+  - bioconductor-bsgenome.hsapiens.ucsc.hg38

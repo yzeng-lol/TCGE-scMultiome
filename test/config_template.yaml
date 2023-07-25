@@ -3,12 +3,26 @@
 ### !! Specify the config file you will need to change the PATHs on lines 8, 9, 14, 18, 25, and/or 33
 ### !! setup all other parameters accordingly !!
 ##
+
 ##########################################
 ### PATH for pipeline and working diretor
-### for enclosed packages failed to be autimatically installed by conda, like MEDStrand
-pipe_dir: /cluster/home/yzeng/snakemake/iSHARC              # Full PATH to the  package
-work_dir: /cluster/home/yzeng/snakemake/iSHARC_test         # for testing
+### for enclosed packages failed to be autimatically installed by conda,
+pipe_dir: /cluster/home/yzeng/snakemake/iSHARC                  # Full PATH to the  package
+work_dir: /cluster/home/yzeng/snakemake/iSHARC_test          # for testing
 #
+
+samples: /cluster/home/yzeng/snakemake/iSHARC/test/samples_real.tsv
+
+
+## cellranger installation path and reference(s) path
+arc_dir: /cluster/tools/software/centos7/cellranger-arc/2.0.2
+arc_ref: /cluster/tools/data/commondata/cellranger/refdata-cellranger-arc-GRCh38-2020-A-2.0.0
+###
+pdx: False
+pdx_ref: NA
+
+
+
 ##################################
 ### Samples Sequencing information
 ### Make sure using the full PATH of FASTQ files in the sample.tsv!!

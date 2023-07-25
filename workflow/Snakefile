@@ -17,4 +17,5 @@ rule all:
     input:
         get_rule_all_input()     ## for all
         ## for testing
+        #"extra_env/all_extra_env_installed"
         ##expand("cellranger-arc/{samples}_dedup.bam", samples = SAMPLES["sample_id"])   ## testing
