@@ -29,9 +29,10 @@ def get_rule_all_input():
     extra_env = "extra_env/all_extra_env_installed",
     arc_out = expand("arc_count/{samples}/outs/atac_fragments.tsv.gz", samples = SAMPLES["sample_id"]),
     main_out = expand("main_seurat/{samples}.RDS", samples = SAMPLES["sample_id"]),
+    qc_report = expand("main_seurat/{samples}_scMultiome_QC_Report.html", samples = SAMPLES["sample_id"]),
     ## fixed outputs
     #meth_qc = "aggregated/meth_qc.txt",
-    return  extra_env + arc_out + main_out
+    return  extra_env + arc_out + main_out + qc_report
 
 ############################
 ## other functions for input

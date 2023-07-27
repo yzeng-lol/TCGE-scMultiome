@@ -8,27 +8,43 @@ macs2_dir   = args[4]
 
 regCellCycle = TRUE
 
+out_dir = paste0(getwd(), "/main_seurat/")         ## with forward slash at the end!!
+macs2_dir   = "/cluster/home/yzeng/miniconda3/envs/iSHARC/bin/macs2"
+anno_rds    = "/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/EnsDb.Hsapiens.v86_2UCSC_hg38.RDS"
+
+
+### for testing
+if(FALSE){
+#conda activate /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/9e63b7702a5c67416a77f3ad2e11f273_
+#R
+sample_id   = "Lung"
+filtered_h5 = "/cluster/projects/tcge/scMultiome/iSHARC_test/arc_count/Lung/outs/filtered_feature_bc_matrix.h5"
+frag_file   = "/cluster/projects/tcge/scMultiome/iSHARC_test/arc_count/Lung/outs/atac_fragments.tsv.gz"
+macs2_dir   = "/cluster/home/yzeng/miniconda3/envs/iSHARC/bin/macs2"
+anno_rds    = "/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/EnsDb.Hsapiens.v86_2UCSC_hg38.RDS"
+}
 
 ##################################################
 ## The main workflow for scMultiome data analysis
 ## loading required packages
 ##################################################
 {
-library(hdf5r)           ## to read HDF5 files
-library(Seurat)
-library(Signac)
-library(dplyr)
-library(ggplot2)
-library(qlcMatrix)        ## for LinkPeaks
-library(future)           ## for paralleling
-library(biovizBase)
-library(EnsDb.Hsapiens.v86)
-#library(BSgenome.Hsapiens.UCSC.hg38)
+suppressMessages(library(hdf5r))           ## to read HDF5 files
+suppressMessages(library(Seurat))
+suppressMessages(library(Signac))
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(qlcMatrix))       ## for LinkPeaks
+suppressMessages(library(future))           ## for paralleling
+suppressMessages(library(biovizBase))
+suppressMessages(library(EnsDb.Hsapiens.v86))
+suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+
+suppressMessages(library(rmarkdown))        ## for HTML QC report
 
 ###################################################################
 ## packages installed from "dependencies"
-
-library(devtools)
+suppressMessages(library(devtools))
 # devtools::load_all(pkgs_path)
 }
 
@@ -49,22 +65,28 @@ library(devtools)
 #######################################
 {
 ## hdf 5 file after joint cell calling
-#inputdata <- Read10X_h5("./filtered_feature_bc_matrix.h5")
 inputdata <- Read10X_h5(filtered_h5)
-
 
 ## ATAC-seq fragments file
 frag.file <- frag_file
 
-### gene annotations
-annotations <- GetGRangesFromEnsDb(ensdb = EnsDb.Hsapiens.v86)
-seqlevelsStyle(annotations) <- 'UCSC'
-annotations_v <- "hg38"
-genome(annotations) <- annotations_v
+### gene anno_gene to UCSC style failed, which might due to version of Signac and GenomeInfoDb
+if(FALSE){
+anno_gene <- GetGRangesFromEnsDb(ensdb = EnsDb.Hsapiens.v86)     ## signac
 
+###### change NCBI chromosome format "1, 2, X, Y, MT" to UCSC format "chr1, chr2, chrX,Y,M"
+## seqlevelsStyle(anno_gene) <- 'UCSC'       ## failed due to "cannot open URL ..."
+anno_gene_v <- "hg38"
+genome(anno_gene) <- anno_gene_v
+}
+
+## tried to load locally generated anno_gene with above codes, failed as well ..
+anno_gene <- readRDS(anno_rds)
+genome_info <- seqinfo(anno_gene)
 
 ## Parallelization using plan for both seurat and signac
 ## plan("multiprocess", workers = 4)
+
 }
 
 ######################################
@@ -84,47 +106,65 @@ rm(rna_counts)
 ################################################
 # Now add in the ATAC-seq data by cellranger-arc
 # Only use peaks in standard chromosomes: chr1-22 + chrX + chrY
+
 grange.counts <- StringToGRanges(rownames(atac_counts), sep = c(":", "-"))
 grange.use <- seqnames(grange.counts) %in% standardChromosomes(grange.counts)
 atac_counts <- atac_counts[as.vector(grange.use), ]
 
 ## add ATAC assay by cellranger-arc
+## if genome is assigned as "hg38" or "GRCh38", the internet is required for download!!!
 chrom_assay <- CreateChromatinAssay(
   counts = atac_counts,
   sep = c(":", "-"),
-  genome = annotations_v,
+  genome = genome_info,
   fragments = frag.file,
-  min.cells = 10,
-  annotation = annotations     ## gene annotation
+  min.cells = 0,
+  min.features = 0,
+  annotation = anno_gene     ## gene annotation doesn't work for h4h so far
 )
 
 scMultiome[["atac_arc"]] <- chrom_assay
-rm(atac_counts, chrom_assay)
+#rm(atac_counts, chrom_assay)
 
 ########################
 ## call peaks using MAC2
 DefaultAssay(scMultiome) <- "atac_arc"
-peaks <- CallPeaks(scMultiome, macs2.path = macs2_dir). ## add more parem
+## need to specify the outdir
+
+peaks <- CallPeaks(scMultiome, macs2.path = macs2_dir,
+                  outdir = out_dir,  fragment.tempdir = out_dir)   ## add more parem
 
 # remove peaks on nonstandard chromosomes and in genomic blacklist regions
 peaks <- keepStandardChromosomes(peaks, pruning.mode = "coarse")
 peaks <- subsetByOverlaps(x = peaks, ranges = blacklist_hg38_unified, invert = TRUE)
+
+
 
 ## quantify counts in each peak
 ## counting fragments (as ArchR)rather than cut sites by cellranger-arc
 macs2_counts <- FeatureMatrix(
   fragments = Fragments(scMultiome),
   features = peaks,
+  sep = c("-", "-"),                 ##  c(":", "-") will lead to invalid character indexing
   cells = colnames(scMultiome)
 )
+
+## using the same granges format
+tmp <- unlist(strsplit(rownames(macs2_counts), "-"))
+LL <- length(tmp)
+n_name <- paste0(tmp[seq(1, LL, 3)], ":", tmp[seq(2, LL, 3)], "-", tmp[seq(3, LL, 3)])
+rownames(macs2_counts) <- n_name
+
 
 # create the ATAC assay using the MACS2 peak set and add it to the Seurat object
 scMultiome[["ATAC"]] <- CreateChromatinAssay(
   counts = macs2_counts,
-  genome = annotations_v,
+  sep = c(":", "-"),
+  genome = genome_info,
   fragments = frag.file,
-  min.cells = 10,                 ## optimal needed
-  annotation = annotations
+  min.cells = 0,
+  min.features = -1,                ##  set as to negative to ensure same number of cells!!
+  annotation = anno_gene
 )
 
 rm(macs2_counts)
@@ -153,7 +193,7 @@ scMultiome <- TSSEnrichment(object = scMultiome, fast = FALSE)
 ## need to be customized based on distribution
 VlnPlot(scMultiome, features = c("nCount_RNA","percent.mt", "nCount_ATAC", "TSS.enrichment", "nucleosome_signal"),
         ncol = 5, log = TRUE, pt.size = 0) + NoLegend()
-ggsave("VlnPlot_4_QC_metrics.pdf", width = 12, height = 4)
+ggsave(paste0(out_dir, sample_id, "_VlnPlot_4_QC_metrics.pdf"), width = 12, height = 4)
 
 ## checking the qc quantiles
 # summary(scMultiome[[c("nCount_ATAC", "nCount_RNA","percent.mt")]])
@@ -163,6 +203,7 @@ qc_quantiles
 
 ## Low count for a cell indicates that it may be dead/dying or an empty droplet.
 ## however, High count indicates that the "cell" may in fact be a doublet (or multiplet).
+if(FALSE){
 scMultiome <- subset(
   x = scMultiome,
   subset = nCount_RNA < 25000 &
@@ -173,7 +214,7 @@ scMultiome <- subset(
     nucleosome_signal < 2 &
     TSS.enrichment > 1)
 }
-
+}
 
 ########################################################################
 ## RNA alone Normalization, Dimension Reduction, Clustering and Embedding
@@ -308,7 +349,7 @@ p3 <- DimPlot(scMultiome, reduction = "umap.atac.arc", group.by = "atac_arc_snn_
 p4 <- DimPlot(scMultiome, reduction = "wnn.umap", group.by = "wsnn_res.0.8",  label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("WNN")
 
 g <- p1 + p2 + p3 + p4  & theme(plot.title = element_text(hjust = 0.5))
-ggsave("UMAP_plots_clustering_by_self.pdf", width = 12, height = 12)
+ggsave(paste0(out_dir, sample_id, "_UMAP_plots_clustering_by_self.pdf"), width = 12, height = 12)
 
 ## different UMAPs using same WNN labels
 p1 <- DimPlot(scMultiome, reduction = "umap.rna", group.by = "wsnn_res.0.8", label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("RNA")
@@ -316,7 +357,7 @@ p2 <- DimPlot(scMultiome, reduction = "umap.atac", group.by = "wsnn_res.0.8", la
 p3 <- DimPlot(scMultiome, reduction = "umap.atac.arc", group.by = "wsnn_res.0.8",  label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("ATAC_ARC")
 p4 <- DimPlot(scMultiome, reduction = "wnn.umap", group.by = "wsnn_res.0.8",  label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("WNN")
 g <- p1 + p2 + p3 + p4  & theme(plot.title = element_text(hjust = 0.5))  ## & NoLegend()
-ggsave("UMAP_plots_clustering_by_WNN.pdf", width = 12, height = 12)
+ggsave(paste0(out_dir, sample_id, "_UMAP_plots_clustering_by_WNN.pdf"), width = 12, height = 12)
 
 
 ## WNN UMAPs using diff cultering labels
@@ -325,7 +366,7 @@ p2 <- DimPlot(scMultiome, reduction = "wnn.umap", group.by = "ATAC_snn_res.0.8",
 p3 <- DimPlot(scMultiome, reduction = "wnn.umap", group.by = "atac_arc_snn_res.0.8",  label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("WNN_ATAC_ARC_label")
 p4 <- DimPlot(scMultiome, reduction = "wnn.umap", group.by = "wsnn_res.0.8",  label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("WNN")
 g <- p1 + p2 + p3 + p4  & theme(plot.title = element_text(hjust = 0.5))  ## & NoLegend()
-ggsave("UMAP_plot_WNN_clustering_by_self.pdf", width = 12, height = 12)
+ggsave(paste0(out_dir, sample_id, "_UMAP_plot_WNN_clustering_by_self.pdf"), width = 12, height = 12)
 
 }
 
@@ -458,4 +499,17 @@ closest_genes_2reg <- ClosestFeature(scMultiome, regions = reg_names)
 ##############
 ## output data
 ##############
-saveRDS(scMultiome, file = paste0(sample_id, ".RDS")
+saveRDS(scMultiome, file = paste0(out_dir, sample_id, ".RDS"))
+
+
+##########################
+## Generate HTML QC report
+##########################
+if(FALSE){
+render(paste0(scr_dir, "/workflow/scripts/qc_report.Rmd"), output_dir = "main_seurat",
+       params = list(readin = paste0(out_dir, sample_id, ".RDS"), sample_id = sample_id))
+}
+
+
+
+print("The main seurat has been successfully executed !!")

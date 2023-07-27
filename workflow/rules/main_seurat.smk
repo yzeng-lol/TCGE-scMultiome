@@ -1,5 +1,5 @@
 #######################
-##
+## main branch
 #######################
 rule main_seurat:
     input:
@@ -10,12 +10,37 @@ rule main_seurat:
     resources:
         mem_mb=60000
     params:
-        scr_dir = config["pipe_dir"],
+        pipe_dir = config["pipe_dir"],
         macs2_dir = env_dir
     log:
-        "main_seurat/{sample}_main_seurat.log"
+        "logs/{sample}_main_seurat.log"
     conda:
         "extra_env/R_pkgs.yaml"
     shell:
-        "(Rscript --vanilla {params.scr_dir}/workflow/scripts/main_seurat.R "
+        "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/main_seurat.R "
         "{wildcards.sample} {input.gex} {input.atac} {params.macs2_dir}/bin/macs2) 2> {log}"
+
+################################
+## generate QC report per sample
+################################
+rule qc_report:
+    input:
+        "main_seurat/{sample}.RDS"
+    output:
+        "main_seurat/{sample}_scMultiome_QC_Report.html"
+    resources:
+        mem_mb=60000
+    params:
+        pipe_dir = config["pipe_dir"],
+        work_dir = config["work_dir"]
+    log:
+        "logs/{sample}_qc_report.log"
+    conda:
+        "extra_env/R_pkgs.yaml"
+    shell:
+        ## generating qc report named by sample id 
+        "(cp {params.pipe_dir}/workflow/scripts/qc_report.Rmd "
+        "    {params.work_dir}/main_seurat/{wildcards.sample}_scMultiome_QC_Report.Rmd && "
+        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/qc_report.R "
+        "  {wildcards.sample} {params.work_dir}/{input} "
+        "  {params.work_dir}/main_seurat/{wildcards.sample}_scMultiome_QC_Report.Rmd) 2> {log}"
