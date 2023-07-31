@@ -1,8 +1,8 @@
-# iSHARC: **I**ntegrating **s**cMultiome data for **h**eterogeneity **a**nd **r**egulatory analysis in **c**ancer (v1.0.0-beta)
+# iSHARC: <ins>I</ins>ntegrating <ins>s</ins>cMultiome data for <ins>h</ins>eterogeneity <ins>a</ins>nd <ins>r</ins>egulatory analysis in <ins>c</ins>ancer (v1.0.0_pre-alpha)
 
 
 ## Intoduction
-This pipeline is designed for automated end-to-end quality control (QC) and analysis of scMultiome data. The pipeline was developed by [Yong Zeng](mailto:yzeng@uhnresearch.ca) based on some prior work of Mathieu Lupien Lab.
+This pipeline is designed for automated end-to-end quality control (QC) and analysis of scMultiome data. It has been developed by [Yong Zeng](mailto:yzeng@uhnresearch.ca), building upon some prior efforts from Mathieu Lupien Lab and feedback from scMultiome Working Group at PMCC...
 
 
 ### Features
@@ -14,6 +14,8 @@ Work-in-progress
 
 ### How it works
 This schematic diagram shows you how pipeline will be working:
+- This pipeline will focus the main branch first (Highlighted Blue)
+
 <img src="figures/scMultiome_workflow.png" alt="Schematic_diagram" style="width:100.0%" />
 
 
@@ -52,4 +54,4 @@ This schematic diagram shows you how pipeline will be working:
 	```
 
 ## Assets and Troubleshooting
-There are several scripts
+There are several scripts ...
