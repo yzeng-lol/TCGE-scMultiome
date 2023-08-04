@@ -22,4 +22,20 @@ render(qc_rmd, output_dir = "main_seurat",
 if(FALSE){
 # cp /cluster/home/yzeng/snakemake/iSHARC/workflow/scripts/qc_report.Rmd /cluster/projects/tcge/scMultiome/iSHARC_test/main_seurat/Lung_scMultiome_QC_Report.Rmd
 # Rscript --vanilla /cluster/home/yzeng/snakemake/iSHARC/workflow/scripts/qc_report.R Lung /cluster/projects/tcge/scMultiome/iSHARC_test/main_seurat/Lung.RDS /cluster/projects/tcge/scMultiome/iSHARC_test/main_seurat/Lung_scMultiome_QC_Report.Rmd
+
+## testing locally 
+rm (list = ls())
+setwd("/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC_test")
+
+library(rmarkdown)
+
+## testing sample Lung
+render("/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC/workflow/scripts/qc_report.rmd", 
+       output_dir = "main_seurat",  params = list(readin = "/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC_test/main_seurat/Lung.RDS", sample_id = "Lung")) 
+
+## testing sample pbmc
+render("/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC/workflow/scripts/qc_report.rmd", 
+       output_dir = "main_seurat",  params = list(readin = "/Users/yong/OneDrive - UHN/Projects/TCGE/scMultimoics/pbmc_granulocyte_sorted_3k/scMultiome/scMultiome.RDS", sample_id = "PBMC")) 
+
+    
 }
