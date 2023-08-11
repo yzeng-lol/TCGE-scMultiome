@@ -40,18 +40,23 @@ This schematic diagram shows you how pipeline will be working:
 	```
 
 4) Test run
-	> **IMPORTANT**: EXTRA ENVIRONMENTS WILL BE INSTALLED, MAKE SURE YOU STILL HAVE INTERNET ACCESS.
+	> **IMPORTANT**: ONLY EXTRA ENVIRONMENTS WILL BE INSTALLED, MAKE SURE YOU STILL HAVE INTERNET ACCESS.
 
+	```bash
+	$ conda activate iSHARC
+	$ snakemake --snakefile ./workflow/Snakefile \
+	            --configfile ./test/config_template.yaml \
+		    --conda-prefix ${CONDA_PREFIX}_extra_env \
+	            --use-conda --conda-create-envs-only -c 1 -p
+	```
 
 5) Run on HPCs
-  (Under construction ...)
 	You can also submit this pipeline to clusters with the template ./workflow/sbatch_Snakefile_template.sh. This template is for SLURM, however, it could be modified to different resource management systems. More details about cluster configuration can be found at [here](https://snakemake.readthedocs.io/en/stable/executing/cluster.html).
 
 	```bash
-	## Test run by SLURM submission
-	$ sed -i 's,/path/to,'"$PWD"',g' ./workflow/sbatch_Snakefile_template.sh    # replace PATHs for testing
+	## Test run by SLURM submission, need to modify the PATHs accord your own real dataset
 	$ sbatch ./workflow/sbatch_Snakefile_template.sh
 	```
 
 ## Assets and Troubleshooting
-There are several scripts ...
+to be added ...

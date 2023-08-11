@@ -34,8 +34,8 @@ suppressMessages(library(Seurat))
 suppressMessages(library(Signac))
 suppressMessages(library(dplyr))
 suppressMessages(library(ggplot2))
-suppressMessages(library(SingleR))         ## auto annotation 
-suppressMessages(library(celldex))         ## annotation reference
+suppressMessages(library(SingleR))         ## auto annotation
+#suppressMessages(library(celldex))         ## annotation reference, added in SingleR
 suppressMessages(library(qlcMatrix))       ## for LinkPeaks
 suppressMessages(library(future))          ## for paralleling
 suppressMessages(library(biovizBase))
@@ -380,13 +380,13 @@ anno_ref <-  BlueprintEncodeData()       ## form package celldex
 ## fetch SCT normalized GEX matrix
 expr <- GetAssayData(object = scMultiome, assay = "SCT", slot = "data")
 
-### using ENCODE 
+### using ENCODE
 expr_anno <- SingleR(test = expr, ref = anno_ref, labels = anno_ref$label.main, clusters =  Idents(scMultiome))
 
-## match cluster labels and annotated labels 
+## match cluster labels and annotated labels
 idx_m <- match(Idents(scMultiome), rownames(expr_anno))
 
-## add labels scMultiome object 
+## add labels scMultiome object
 scMultiome[["WNN_SingleR_anno"]] <- expr_anno$labels[idx_m]
 
 }
@@ -520,16 +520,5 @@ closest_genes_2reg <- ClosestFeature(scMultiome, regions = reg_names)
 ## output data
 ##############
 saveRDS(scMultiome, file = paste0(out_dir, sample_id, ".RDS"))
-
-
-##########################
-## Generate HTML QC report
-##########################
-if(FALSE){
-render(paste0(scr_dir, "/workflow/scripts/qc_report.Rmd"), output_dir = "main_seurat",
-       params = list(readin = paste0(out_dir, sample_id, ".RDS"), sample_id = sample_id))
-}
-
-
 
 print("The main seurat has been successfully executed !!")

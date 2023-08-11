@@ -1,3 +1,4 @@
 sample_id	sample_label	sample_library
 Lung	PRAC	/cluster/projects/tcge/scMultiome/iSHARC_test/Lung_library.csv
 Brain	PRAC	/cluster/projects/tcge/scMultiome/iSHARC_test/Brain_library.csv
+PBMC_demo	Blood	/cluster/projects/tcge/scMultiome/iSHARC_test/PBMC_library.csv

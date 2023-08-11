@@ -1,0 +1,3 @@
+fastqs,sample,library_type
+/path/to/Sample2/GEX,Sample2,Gene Expression
+/path/to/Sample2/ATAC,Sample2,Chromatin Accessibility

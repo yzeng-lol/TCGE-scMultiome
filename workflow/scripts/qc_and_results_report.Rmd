@@ -33,7 +33,7 @@ library(dplyr)
 library(ggplot2)
 library(plotly)
 library(knitr)
-library(SingleR)       ## auto annotation 
+library(SingleR)       ## auto annotation
 library(celldex)       ## annotation reference
 #library(heatmaply)
 #library(gapminder)
@@ -78,10 +78,10 @@ VlnPlot(scMultiome, features = c("nCount_RNA","percent.mt", "nCount_ATAC", "TSS.
 qc_df <- data.frame(qc_df)
 qc_percentiles  <- data.frame(qc_percentiles)
 
-idx_RNA <- qc_df$nCount_RNA > max(1000, qc_percentiles$nCount_RNA[2]) & 
+idx_RNA <- qc_df$nCount_RNA > max(1000, qc_percentiles$nCount_RNA[2]) &
            qc_df$nCount_RNA < min(25000, qc_percentiles$nCount_RNA[6])
 idx_mt <- qc_df$percent.mt < min(20, qc_percentiles$percent.mt[6])
-idx_ATAC <- qc_df$nCount_ATAC > max(5000, qc_percentiles$nCount_ATAC[2]) & 
+idx_ATAC <- qc_df$nCount_ATAC > max(5000, qc_percentiles$nCount_ATAC[2]) &
             qc_df$nCount_ATAC < min(70000, qc_percentiles$nCount_ATAC[6])  
 idx_tss <- qc_df$TSS.enrichment > max(1, qc_percentiles$TSS.enrichment[2])
 idx_ns <- qc_df$nucleosome_signal < min(2, qc_percentiles$nucleosome_signal[6])
@@ -95,37 +95,37 @@ cells_frac <- round(cells_2filtered / nrow(qc_df), 2)
 cells_2filtered  <- rbind(cells_2filtered, cells_frac)
 
 rownames(cells_2filtered) <- c("Number of cells", "Fraction of 1st filtered cells")
-colnames(cells_2filtered) <- c("2nd_filtered_by_RNA", "2nd_filtered_by_ATAC",        "2nd_filtered_by_Both") 
+colnames(cells_2filtered) <- c("2nd_filtered_by_RNA", "2nd_filtered_by_ATAC",        "2nd_filtered_by_Both")
 kable(cells_2filtered)
 ```
 
 
 ## Cell cycle assessment
-* Be cautious when dealing with cells undergoing differentiation processes (like [hematopoiesis](https://satijalab.org/seurat/articles/cell_cycle_vignette.html#alternate-workflow)). 
+* Be cautious when dealing with cells undergoing differentiation processes (like [hematopoiesis](https://satijalab.org/seurat/articles/cell_cycle_vignette.html#alternate-workflow)).
 * PCA plots before and after regressing out the effects of cell cycle, only cell cycle genes are used for PCA analysis.
 ```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 15, fig.height= 5}
-## bar plot for the number of cells per cell cycle status 
+## bar plot for the number of cells per cell cycle status
 
 cc_cnt <- table(scMultiome$Phase)
 cc_pct <- paste(round(100 * cc_cnt/sum(cc_cnt), 2), "%", sep="")
 cc_group <- factor(names(cc_cnt), levels = c("G1", "S", "G2M", "Undecided"))
 
-  
+
 dat <- data.frame(cc_cnt, cc_pct, cc_group)
 
 p1 <- ggplot(dat, aes(y = cc_cnt, x = cc_group, fill = cc_group)) + geom_bar(stat='identity')
 p1 <- p1 + geom_text(aes(label = cc_cnt), size = 5, vjust =  1.5)
 p1 <- p1 + geom_text(aes(label = cc_pct), size = 5, vjust = -0.2)
-p1 <- p1 + labs(y = "Number of cells", x = "Cell cycle phases") 
-p1 <- p1 + theme_classic() +   theme(legend.position = "none") 
+p1 <- p1 + labs(y = "Number of cells", x = "Cell cycle phases")
+p1 <- p1 + theme_classic() +   theme(legend.position = "none")
 
 
-## PCA plots before and after regressing out the cell cycle effects 
+## PCA plots before and after regressing out the cell cycle effects
 ## cell cycle genes
 s.genes <- cc.genes$s.genes
 g2m.genes <- cc.genes$g2m.genes
 
-## without regressing out cell cycle 
+## without regressing out cell cycle
 cc_ori <- SCTransform(
     scMultiome,
     assay = 'RNA',
@@ -136,8 +136,8 @@ cc_ori <- SCTransform(
 cc_ori <- RunPCA(cc_ori, features = c(s.genes, g2m.genes))
 p2 <- DimPlot(cc_ori, group.by = "Phase") + ggtitle("Before")
 
-## regressing out cell cycle 
-DefaultAssay(scMultiome) <- "SCT"   ## which has regressed out cell cycle by default 
+## regressing out cell cycle
+DefaultAssay(scMultiome) <- "SCT"   ## which has regressed out cell cycle by default
 cc_reg <- RunPCA(scMultiome, features = c(s.genes, g2m.genes))
 p3 <- DimPlot(cc_reg, reduction = "pca", group.by = "Phase") + ggtitle("After")
 
@@ -146,7 +146,7 @@ p1 + p2 + p3  & theme(plot.title = element_text(hjust = 0.5))
 
 ```
 
-## Clustering results 
+## Clustering results
 ### Based on RNA, ATAC alone and WNN integrated
 ```{r, echo=FALSE, fig.width = 15, fig.height= 5}
 p1 <- DimPlot(scMultiome, reduction = "umap.rna",  group.by = "SCT_snn_res.0.8", label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("RNA")
@@ -162,43 +162,46 @@ The modality weights for each of the cell populations. Higher RNA weights indica
 
 ```{r, echo=FALSE, fig.width = 15, fig.height= 3}
 
-VlnPlot(scMultiome, features = "SCT.weight", group.by = 'wsnn_res.0.8', sort = FALSE, pt.size = 0.1) + ggtitle("RNA weights") 
+VlnPlot(scMultiome, features = "SCT.weight", group.by = 'wsnn_res.0.8', sort = FALSE, pt.size = 0.1) + ggtitle("RNA weights")
 
-VlnPlot(scMultiome, features = "ATAC.weight", group.by = 'wsnn_res.0.8', sort = FALSE, pt.size = 0.1) +  ggtitle("ATAC weights") 
+VlnPlot(scMultiome, features = "ATAC.weight", group.by = 'wsnn_res.0.8', sort = FALSE, pt.size = 0.1) +  ggtitle("ATAC weights")
 ```
 
 ## Auto annotation
 ### Per integrated clusters annotation based on publicly avalialbe references
-The Blueprint/ENCODE reference from R package [celldex](https://bioconductor.org/packages/3.17/data/experiment/vignettes/celldex/inst/doc/userguide.html) is used for automatic annotation. 
+The Blueprint/ENCODE reference from R package [celldex](https://bioconductor.org/packages/3.17/data/experiment/vignettes/celldex/inst/doc/userguide.html) is used for automatic annotation.
 
 ```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 15, fig.height= 6}
-## just in case the scMultiome.RDS didn't automatic annotated 
+## just in case the scMultiome.RDS didn't automatic annotated
 if(is.na(match("WNN_SingleR_anno", colnames(scMultiome@meta.data)))){
-#hpcs <- HumanPrimaryCellAtlasData()
-encode <-  BlueprintEncodeData()
+
+anno_ref <-  BlueprintEncodeData()       ## form package celldex
+
 ## fetch SCT normalized GEX matrix
 expr <- GetAssayData(object = scMultiome, assay = "SCT", slot = "data")
 
-### using ENCODE 
-expr_anno <- SingleR(test = expr, ref = encode, labels = encode$label.main, clusters =  Idents(scMultiome))
-## match cluster labels and annotated labels 
+### using ENCODE
+expr_anno <- SingleR(test = expr, ref = anno_ref, labels = anno_ref$label.main, clusters =  Idents(scMultiome))
+
+## match cluster labels and annotated labels
 idx_m <- match(Idents(scMultiome), rownames(expr_anno))
-## add labels scMultiome object 
+
+## add labels scMultiome object
 scMultiome[["WNN_SingleR_anno"]] <- expr_anno$labels[idx_m]
 }
 
-## umap 
+## umap
 p1 <- DimPlot(scMultiome, reduction = "wnn.umap", group.by = "WNN_SingleR_anno",  label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("")
 
-## bar plot with WNN labels and singleR labels 
+## bar plot with WNN labels and singleR labels
 dat  <- scMultiome[[c("seurat_clusters","WNN_SingleR_anno")]]
-dat_sum <- dat %>% 
-           group_by(seurat_clusters, WNN_SingleR_anno) %>% 
+dat_sum <- dat %>%
+           group_by(seurat_clusters, WNN_SingleR_anno) %>%
            summarise(cnt = n())
 p2 <- ggplot(dat_sum, aes(fill = seurat_clusters, y = cnt, x = WNN_SingleR_anno))  
 p2 <- p2 + geom_bar(position="stack", stat="identity")
-p2 <- p2 + labs(y = "Number of cells", x = "SingleR annoated cell types") 
-p2 <- p2 + guides(fill=guide_legend(title="WNN clusters")) + theme_classic() 
+p2 <- p2 + labs(y = "Number of cells", x = "SingleR annoated cell types")
+p2 <- p2 + guides(fill=guide_legend(title="WNN clusters")) + theme_classic()
 
 p1 + p2   & theme(plot.title = element_text(hjust = 0.5))
 
@@ -206,9 +209,6 @@ p1 + p2   & theme(plot.title = element_text(hjust = 0.5))
 
 ### Distinguish between tumor and normal cells
 * umap labeled by tumor and normal
-* assessment with inferCNV 
+* assessment with inferCNV
 
 To be added ...
-
-
-

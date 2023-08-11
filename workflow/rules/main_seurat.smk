@@ -23,11 +23,11 @@ rule main_seurat:
 ################################
 ## generate QC report per sample
 ################################
-rule qc_report:
+rule qc_and_results_report:
     input:
         "main_seurat/{sample}.RDS"
     output:
-        "main_seurat/{sample}_scMultiome_QC_Report.html"
+        "main_seurat/{sample}_scMultiome_QC_and_Primary_Results_Report.html"
     resources:
         mem_mb=60000
     params:
@@ -38,9 +38,9 @@ rule qc_report:
     conda:
         "extra_env/R_pkgs.yaml"
     shell:
-        ## generating qc report named by sample id 
-        "(cp {params.pipe_dir}/workflow/scripts/qc_report.Rmd "
-        "    {params.work_dir}/main_seurat/{wildcards.sample}_scMultiome_QC_Report.Rmd && "
-        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/qc_report.R "
+        ## generating qc report named by sample id
+        "(cp {params.pipe_dir}/workflow/scripts/qc_and_results_report.Rmd "
+        "    {params.work_dir}/main_seurat/{wildcards.sample}_scMultiome_QC_and_Primary_Results_Report.Rmd && "
+        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/qc_and_results_report.R "
         "  {wildcards.sample} {params.work_dir}/{input} "
-        "  {params.work_dir}/main_seurat/{wildcards.sample}_scMultiome_QC_Report.Rmd) 2> {log}"
+        "  {params.work_dir}/main_seurat/{wildcards.sample}_scMultiome_QC_and_Primary_Results_Report.Rmd) 2> {log}"
