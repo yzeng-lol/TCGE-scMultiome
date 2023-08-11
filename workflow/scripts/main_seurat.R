@@ -34,8 +34,10 @@ suppressMessages(library(Seurat))
 suppressMessages(library(Signac))
 suppressMessages(library(dplyr))
 suppressMessages(library(ggplot2))
+suppressMessages(library(SingleR))         ## auto annotation 
+suppressMessages(library(celldex))         ## annotation reference
 suppressMessages(library(qlcMatrix))       ## for LinkPeaks
-suppressMessages(library(future))           ## for paralleling
+suppressMessages(library(future))          ## for paralleling
 suppressMessages(library(biovizBase))
 suppressMessages(library(EnsDb.Hsapiens.v86))
 suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
@@ -137,8 +139,6 @@ peaks <- CallPeaks(scMultiome, macs2.path = macs2_dir,
 # remove peaks on nonstandard chromosomes and in genomic blacklist regions
 peaks <- keepStandardChromosomes(peaks, pruning.mode = "coarse")
 peaks <- subsetByOverlaps(x = peaks, ranges = blacklist_hg38_unified, invert = TRUE)
-
-
 
 ## quantify counts in each peak
 ## counting fragments (as ArchR)rather than cut sites by cellranger-arc
@@ -370,6 +370,26 @@ ggsave(paste0(out_dir, sample_id, "_UMAP_plot_WNN_clustering_by_self.pdf"), widt
 
 }
 
+###################################
+## auto annotation using pulicic
+##################################
+{
+
+anno_ref <-  BlueprintEncodeData()       ## form package celldex
+
+## fetch SCT normalized GEX matrix
+expr <- GetAssayData(object = scMultiome, assay = "SCT", slot = "data")
+
+### using ENCODE 
+expr_anno <- SingleR(test = expr, ref = anno_ref, labels = anno_ref$label.main, clusters =  Idents(scMultiome))
+
+## match cluster labels and annotated labels 
+idx_m <- match(Idents(scMultiome), rownames(expr_anno))
+
+## add labels scMultiome object 
+scMultiome[["WNN_SingleR_anno"]] <- expr_anno$labels[idx_m]
+
+}
 
 ##########################################
 # identify DEGs and DARs
