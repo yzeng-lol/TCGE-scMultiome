@@ -34,7 +34,7 @@ library(ggplot2)
 library(plotly)
 library(knitr)
 library(SingleR)       ## auto annotation
-library(celldex)       ## annotation reference
+#library(celldex)       ## annotation reference, already included in SingleR
 #library(heatmaply)
 #library(gapminder)
 #library(gplots)
