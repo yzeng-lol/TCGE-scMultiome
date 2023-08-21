@@ -35,7 +35,7 @@ suppressMessages(library(Signac))
 suppressMessages(library(dplyr))
 suppressMessages(library(ggplot2))
 suppressMessages(library(SingleR))         ## auto annotation
-#suppressMessages(library(celldex))         ## annotation reference, added in SingleR
+suppressMessages(library(celldex))         ## annotation reference
 suppressMessages(library(qlcMatrix))       ## for LinkPeaks
 suppressMessages(library(future))          ## for paralleling
 suppressMessages(library(biovizBase))

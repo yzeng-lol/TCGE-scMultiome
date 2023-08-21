@@ -2,13 +2,17 @@ name: R_pkgs
 channels:
   - conda-forge
   - bioconda
-  - paul.martin-2                          ## for r-doubletfinder
+  - paul.martin-2                  ## for r-doubletfinder
+  - sgriva                         ## for r-archr
 dependencies:
   ## specify versions will cause pkgs incompatible
+  - r-optparse                     ## R commandline parser
   - r-seurat
   - r-signac                       ## analysis scATAC-seq data
+  #- r-archr                        ## streamline scATAC analyses
+  - r-harmony                      ## integration of single cell datasets
   - r-monocle3                     ## build single-cell trajectories
-  - r-doubletfinder                        ## predicts doublets in scRNA-seq data
+  - r-doubletfinder                ## predicts doublets in scRNA-seq data
   - r-soupx                        ## remove ambient mRNA contamination
   - r-hdf5r
   - r-devtools
@@ -18,6 +22,7 @@ dependencies:
   - r-future
   - bioconductor-infercnv          ## infer the CNV: Copy Nubmer Variation
   - bioconductor-singler           ## auto annotation by reference
+  - bioconductor-celldex           ## reference database
   - bioconductor-aucell            ## auto annotation by markers
   - bioconductor-chromvar
   - bioconductor-biovizbase
