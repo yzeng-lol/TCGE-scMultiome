@@ -26,13 +26,13 @@ snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
 ## -p   partition to submit for SLURM
 ## --mem    request memory, specify as much as you can. As we tested, 60G can handle all real cfMeDIP-seq datasets so far.
 ## --jobs   ## number of samples in modified sample_tmplate.tsv files (independent steps will be scheduled per sample)
+## keep-going: Go on with independent jobs if a job fails
 ## sbatch -c :  maximal 12 threads per multithreading job by default, less -c INT  will be scaled down to INT
-
 
 snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
           --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
           --cluster-config /cluster/home/yzeng/snakemake/iSHARC/workflow/config/cluster_std_err.json \
-          --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
+          --keep-going  --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
           --cluster "sbatch -p veryhimem -c 12 --mem=100G -J {cluster.jid} -o {cluster.std} -e {cluster.err}" \
           --latency-wait 60 --jobs 2 -p
 

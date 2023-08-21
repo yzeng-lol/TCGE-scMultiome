@@ -11,7 +11,7 @@ regCellCycle = TRUE
 out_dir = paste0(getwd(), "/main_seurat/")         ## with forward slash at the end!!
 macs2_dir   = "/cluster/home/yzeng/miniconda3/envs/iSHARC/bin/macs2"
 anno_rds    = "/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/EnsDb.Hsapiens.v86_2UCSC_hg38.RDS"
-
+ref_rds = "/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/BlueprintEncodeData.RDS"
 
 ### for testing
 if(FALSE){
@@ -370,12 +370,13 @@ ggsave(paste0(out_dir, sample_id, "_UMAP_plot_WNN_clustering_by_self.pdf"), widt
 
 }
 
-###################################
-## auto annotation using pulicic
-##################################
+##############################################################
+## auto annotation using publicly available reference datasets
+##############################################################
 {
 
-anno_ref <-  BlueprintEncodeData()       ## form package celldex
+## anno_ref <-  BlueprintEncodeData()       ## form package celldex, internet required
+anno_ref <- readRDS(ref_rds)
 
 ## fetch SCT normalized GEX matrix
 expr <- GetAssayData(object = scMultiome, assay = "SCT", slot = "data")
@@ -390,6 +391,21 @@ idx_m <- match(Idents(scMultiome), rownames(expr_anno))
 scMultiome[["WNN_SingleR_anno"]] <- expr_anno$labels[idx_m]
 
 }
+
+#####################################################
+## Distinguish the tumor cells from the normal cells
+#####################################################
+{
+## to use copyKAT and inferCNV
+
+
+
+}
+
+
+
+
+
 
 ##########################################
 # identify DEGs and DARs

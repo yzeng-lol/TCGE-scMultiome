@@ -175,7 +175,11 @@ The Blueprint/ENCODE reference from R package [celldex](https://bioconductor.org
 ## just in case the scMultiome.RDS didn't automatic annotated
 if(is.na(match("WNN_SingleR_anno", colnames(scMultiome@meta.data)))){
 
-anno_ref <-  BlueprintEncodeData()       ## form package celldex
+## BlueprintEncodeData requires internet to download corresponding data
+# anno_ref <-  BlueprintEncodeData()       ## form package celldex
+
+## pre-downloaded data has been added to ./iSHARC/workflow/dependencies/
+#  anno_ref <- readRDS()
 
 ## fetch SCT normalized GEX matrix
 expr <- GetAssayData(object = scMultiome, assay = "SCT", slot = "data")
