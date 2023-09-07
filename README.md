@@ -14,7 +14,7 @@ Work-in-progress
 
 ### How it works
 This schematic diagram shows you how pipeline will be working:
-- This pipeline will focus the main branch first (Highlighted Blue)
+- We are focusing on the main branch right now (Highlighted Blue)
 
 <img src="figures/scMultiome_workflow.png" alt="Schematic_diagram" style="width:100.0%" />
 
@@ -49,8 +49,9 @@ This schematic diagram shows you how pipeline will be working:
 		    --conda-prefix ${CONDA_PREFIX}_extra_env \
 	            --use-conda --conda-create-envs-only -c 1 -p
 	```
+5) The [cellranger_arc](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc) and corresponding genome reference, such as [GRCh38](https://cf.10xgenomics.com/supp/cell-arc/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz), must be installed and downloaded prior to a full run. You will need to specify their PATHS in the config.yaml file.  
 
-5) Run on HPCs
+6) Run on HPCs
 	You can also submit this pipeline to clusters with the template ./workflow/sbatch_Snakefile_template.sh. This template is for SLURM, however, it could be modified to different resource management systems. More details about cluster configuration can be found at [here](https://snakemake.readthedocs.io/en/stable/executing/cluster.html).
 
 	```bash

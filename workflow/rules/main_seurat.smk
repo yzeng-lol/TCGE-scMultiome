@@ -18,7 +18,8 @@ rule main_seurat:
         "extra_env/R_pkgs.yaml"
     shell:
         "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/main_seurat.R "
-        "{wildcards.sample} {input.gex} {input.atac} {params.macs2_dir}/bin/macs2) 2> {log}"
+        "{wildcards.sample} {input.gex} {input.atac} {params.macs2_dir}/bin/macs2 "
+        "{params.pipe_dir}) 2> {log}"
 
 ################################
 ## generate QC report per sample

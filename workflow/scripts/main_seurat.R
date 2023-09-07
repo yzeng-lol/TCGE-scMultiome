@@ -5,13 +5,13 @@ sample_id   = args[1]
 filtered_h5 = args[2]
 frag_file   = args[3]
 macs2_dir   = args[4]
+pipe_dir    = args[5]
 
 regCellCycle = TRUE
 
 out_dir = paste0(getwd(), "/main_seurat/")         ## with forward slash at the end!!
-macs2_dir   = "/cluster/home/yzeng/miniconda3/envs/iSHARC/bin/macs2"
-anno_rds    = "/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/EnsDb.Hsapiens.v86_2UCSC_hg38.RDS"
-ref_rds = "/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/BlueprintEncodeData.RDS"
+#macs2_dir   = "/cluster/home/yzeng/miniconda3/envs/iSHARC/bin/macs2"          forward slash at the end
+#pipe_dir ="/cluster/home/yzeng/snakemake/iSHARC"                          ## NOforward slash at the end
 
 ### for testing
 if(FALSE){
@@ -47,7 +47,11 @@ suppressMessages(library(rmarkdown))        ## for HTML QC report
 ###################################################################
 ## packages installed from "dependencies"
 suppressMessages(library(devtools))
-# devtools::load_all(pkgs_path)
+
+## load copykat
+devtools::load_all(paste0(pipe_dir, "/workflow/dependencies/copykat"))
+library(copykat)
+
 }
 
 
@@ -83,6 +87,7 @@ genome(anno_gene) <- anno_gene_v
 }
 
 ## tried to load locally generated anno_gene with above codes, failed as well ..
+anno_rds <- paste0(pipe_dir, "/dependencies/EnsDb.Hsapiens.v86_2UCSC_hg38.RDS")
 anno_gene <- readRDS(anno_rds)
 genome_info <- seqinfo(anno_gene)
 
@@ -376,6 +381,7 @@ ggsave(paste0(out_dir, sample_id, "_UMAP_plot_WNN_clustering_by_self.pdf"), widt
 {
 
 ## anno_ref <-  BlueprintEncodeData()       ## form package celldex, internet required
+ref_rds <- paste0(pipe_dir, "/workflow/dependencies/BlueprintEncodeData.RDS")
 anno_ref <- readRDS(ref_rds)
 
 ## fetch SCT normalized GEX matrix
@@ -396,15 +402,24 @@ scMultiome[["WNN_SingleR_anno"]] <- expr_anno$labels[idx_m]
 ## Distinguish the tumor cells from the normal cells
 #####################################################
 {
-## to use copyKAT and inferCNV
+## Using copyKAT to predicts tumor and normal cells
+## RNA-seq data based
 
+expr_raw <- as.matrix(scMultiome@assays$RNA@counts)
 
+copykat_res <- copykat(rawmat = expr_raw, sam.name = sample_id , id.type = "S", ngene.chr = 5, win.size = 25,
+                        KS.cut = 0.1,  distance = "euclidean", norm.cell.names = "", output.seg = "FLASE",
+                        plot.genes = "TRUE", genome = "hg20", n.cores = 1)
+
+## adding copykat predict labels to the scMultiome metatable
+idx_s <- match(rownames(scMultiome@meta.data),copykat_res$prediction$cell.names)
+
+cell_type <- rep("NA", length(idx_s))
+cell_type[!is.na(idx_s)] <- copykat_res$prediction$copykat.pred[idx_s[!is.na(idx_s)]]
+
+scMultiome[["copykat_anno"]] <- cell_type
 
 }
-
-
-
-
 
 
 ##########################################

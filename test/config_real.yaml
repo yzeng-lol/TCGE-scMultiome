@@ -1,29 +1,24 @@
+### !! Replce the PATHs accordingly !!
+### !! Setup all other parameters accordingly !!
 
-## !! Replace all   /path/to** to your own specific FULL PATHs
-### !! setup all other parameters accordingly !!
-##
 ##########################################
 ### PATH for pipeline and working diretor
 ### for enclosed packages failed to be autimatically installed by conda,
-pipe_dir: /cluster/home/yzeng/snakemake/iSHARC                  # Full PATH to the  package
-work_dir: /cluster/projects/tcge/scMultiome/iSHARC_test         # for testing
-#
+pipe_dir: /cluster/home/yzeng/snakemake/iSHARC                  # Full PATH to the iSHARC package
+work_dir: /cluster/projects/tcge/scMultiome/iSHARC_test         # for real testing
 
-samples: /cluster/home/yzeng/snakemake/iSHARC/test/samples_real.tsv
-
-
-## cellranger installation path and reference(s) path
+## cellranger will not be installed by the iSHARC
+## point to the your-self installation path and reference(s) path
 arc_dir: /cluster/tools/software/centos7/cellranger-arc/2.0.2
 arc_ref: /cluster/tools/data/commondata/cellranger/refdata-cellranger-arc-GRCh38-2020-A-2.0.0
-###
-pdx: False
-pdx_ref: NA
-
-
-
-
 
 ##################################
 ### Samples Sequencing information
-### Make sure using the full PATH of FASTQ files in the sample.tsv!!
-#samples: /path/to/test/sample_template.tsv
+### Need to spcify your own sample_template.tsv and sample*get_librarycsv files accordingly!!
+### Templates can be found in ./iSHARC/test
+samples: /cluster/home/yzeng/snakemake/iSHARC/test/samples_real.tsv
+
+
+##############################
+## parameters to be customized
+##
