@@ -22,3 +22,5 @@ samples: /cluster/home/yzeng/snakemake/iSHARC/test/samples_template.tsv
 ##############################
 ## parameters to be customized
 ##
+pdx: False
+pdx_ref: NA

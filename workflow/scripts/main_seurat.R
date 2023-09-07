@@ -15,7 +15,7 @@ out_dir = paste0(getwd(), "/main_seurat/")         ## with forward slash at the 
 
 ### for testing
 if(FALSE){
-#conda activate /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/9e63b7702a5c67416a77f3ad2e11f273_
+#conda activate /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/672743604e74f3edd5a4eb4b70c92872_
 #R
 sample_id   = "Lung"
 filtered_h5 = "/cluster/projects/tcge/scMultiome/iSHARC_test/arc_count/Lung/outs/filtered_feature_bc_matrix.h5"
@@ -48,9 +48,13 @@ suppressMessages(library(rmarkdown))        ## for HTML QC report
 ## packages installed from "dependencies"
 suppressMessages(library(devtools))
 
-## load copykat
-devtools::load_all(paste0(pipe_dir, "/workflow/dependencies/copykat"))
-library(copykat)
+## load copykat :: under tuning
+
+## devtools::load_all(paste0(pipe_dir, "/workflow/dependencies/copykat"))
+
+## The packages `parallelDist`, `dlm`, and `MCMCpack` are required.
+
+## library(copykat)
 
 }
 
@@ -401,7 +405,8 @@ scMultiome[["WNN_SingleR_anno"]] <- expr_anno$labels[idx_m]
 #####################################################
 ## Distinguish the tumor cells from the normal cells
 #####################################################
-{
+## under testing on sever
+if(FALSE){
 ## Using copyKAT to predicts tumor and normal cells
 ## RNA-seq data based
 
