@@ -47,5 +47,11 @@ def get_cellranger_arc_ref():
     else:
         return config["arc_ref"]
 
-def get_library(wildcards):
-    return SAMPLES.loc[wildcards.sample]["sample_library"]
+#def get_library(wildcards):
+#    return SAMPLES.loc[wildcards.sample]["sample_library"]
+
+def get_sample_seq_id(wildcards):
+    return SAMPLES.loc[wildcards.sample]["sample_seq_id"]
+
+def get_sample_seq_path(wildcards):
+    return SAMPLES.loc[wildcards.sample]["sample_seq_path"]

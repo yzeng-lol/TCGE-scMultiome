@@ -1,4 +1,6 @@
-sample_id	sample_label	sample_library
-Lung	PRAC	/cluster/projects/tcge/scMultiome/iSHARC_test/Lung_library.csv
-Brain	PRAC	/cluster/projects/tcge/scMultiome/iSHARC_test/Brain_library.csv
-PBMC_demo	Blood	/cluster/projects/tcge/scMultiome/iSHARC_test/PBMC_library.csv
+sample_id	sample_seq_id	sample_seq_path
+Lung	179647_lung	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA
+Brain	137699_Brain	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA
+Vertebra	137738_Vertebra	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA
+Pleura	179567_Pleura	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA
+Liver	179567_liver	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA

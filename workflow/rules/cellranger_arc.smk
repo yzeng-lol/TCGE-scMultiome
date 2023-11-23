@@ -1,10 +1,28 @@
+#################################################
+## prepare library files for cellrancer_arc_count
+#################################################
+rule prep_library_file:
+    input:
+        get_sample_seq_id,
+        get_sample_seq_path
+    output:
+        "arc_count/{sample}_library.csv",
+    shell:
+        ## generate library.csv per sample
+        "echo 'fastqs,sample,library_type' > {wildcards.sample}_library.csv && "
+        "echo '{input[1]}/GEX,{input[0]},Gene Expression' >>  {wildcards.sample}_library.csv && "
+        "echo '{input[1]}/ATAC,{input[0]},Chromatin Accessibility' >>  {wildcards.sample}_library.csv "
+
+
+
 #######################
 ## cellranger_arc_count
 #######################
 rule cellranger_arc_count:
     input:
         get_cellranger_arc_ref(),
-        get_library
+        "arc_count/{sample}_library.csv"
+        #get_library
     output:
         "arc_count/{sample}/outs/filtered_feature_bc_matrix.h5",
         "arc_count/{sample}/outs/atac_fragments.tsv.gz",
