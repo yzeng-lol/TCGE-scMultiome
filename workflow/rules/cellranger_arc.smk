@@ -3,16 +3,18 @@
 #################################################
 rule prep_library_file:
     input:
-        get_sample_seq_id,
-        get_sample_seq_path
+        samples_list
     output:
-        "arc_count/{sample}_library.csv",
+        "arc_count/{sample}_library.csv"
+    params:
+        id = get_sample_seq_id,
+        gex_path = get_gex_seq_path,
+        atac_path = get_atac_seq_path
     shell:
         ## generate library.csv per sample
-        "echo 'fastqs,sample,library_type' > {wildcards.sample}_library.csv && "
-        "echo '{input[1]}/GEX,{input[0]},Gene Expression' >>  {wildcards.sample}_library.csv && "
-        "echo '{input[1]}/ATAC,{input[0]},Chromatin Accessibility' >>  {wildcards.sample}_library.csv "
-
+        "echo 'fastqs,sample,library_type' > arc_count/{wildcards.sample}_library.csv && "
+        "echo '{params.gex_path},{params.id},Gene Expression' >>  arc_count/{wildcards.sample}_library.csv && "
+        "echo '{params.atac_path},{params.id},Chromatin Accessibility' >>  arc_count/{wildcards.sample}_library.csv "
 
 
 #######################
@@ -38,5 +40,5 @@ rule cellranger_arc_count:
         "(export PATH={params.arc_dir}:$PATH && "
         "cd {params.out_dir}/arc_count && "
         "cellranger-arc count --id {wildcards.sample}_res --reference={input[0]} "
-        "--libraries={input[1]}  --localcores={threads} && "
+        "--libraries={params.out_dir}/{input[1]}  --localcores={threads} && "
         "rm -r {wildcards.sample} && mv {wildcards.sample}_res {wildcards.sample}) 2> {log}"

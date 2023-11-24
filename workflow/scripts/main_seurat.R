@@ -7,24 +7,33 @@ frag_file   = args[3]
 macs2_dir   = args[4]
 pipe_dir    = args[5]
 
-regCellCycle = TRUE      ## set as true by defaulting 
+regCellCycle = TRUE      ## set as true by defaulting
 
 out_dir = paste0(getwd(), "/main_seurat/")         ## with forward slash at the end!!
 
-#macs2_dir   = "/cluster/home/yzeng/miniconda3/envs/iSHARC/bin/macs2"          forward slash at the end
-#pipe_dir ="/cluster/home/yzeng/snakemake/iSHARC"                          ## NOforward slash at the end
+#macs2_dir   = "/cluster/home/yzeng/miniconda3/envs/iSHARC/bin/macs2"      ## NO forward slash at the end
+#pipe_dir ="/cluster/home/yzeng/snakemake/iSHARC"                          ## NO forward slash at the end
 
-### for testing
+###############################
+### for testing and fine-tuning
+###############################
 if(FALSE){
-#conda activate /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/672743604e74f3edd5a4eb4b70c92872_
+#########
+## on H4H
+# cd  /cluster/projects/tcge/scMultiome/iSHARC_test/main_seurat
+# conda activate  /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/ebcd8f410d62ed43e71d1cebab0b3296_    ## new
+
+## conda activate /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/672743604e74f3edd5a4eb4b70c92872_  ## old
 #R
 sample_id   = "Lung"
 filtered_h5 = "/cluster/projects/tcge/scMultiome/iSHARC_test/arc_count/Lung/outs/filtered_feature_bc_matrix.h5"
 frag_file   = "/cluster/projects/tcge/scMultiome/iSHARC_test/arc_count/Lung/outs/atac_fragments.tsv.gz"
 macs2_dir   = "/cluster/home/yzeng/miniconda3/envs/iSHARC/bin/macs2"
+pipe_dir = "/cluster/home/yzeng/snakemake/iSHARC"
 anno_rds    = "/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/EnsDb.Hsapiens.v86_2UCSC_hg38.RDS"
 
-## testing locally with RDS 
+###########################
+## testing locally with RDS
 rm(list = ls())
 setwd("/Users/yong/OneDrive - UHN/Projects/snakemake/iSHARC_test")
 scMultiome <- readRDS("Lung.RDS")
@@ -54,17 +63,25 @@ suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
 
 suppressMessages(library(rmarkdown))        ## for HTML QC report
 
-###################################################################
+#########################################
 ## packages installed from "dependencies"
 suppressMessages(library(devtools))
 
-## load copykat :: under tuning
+## install "dlm", which is required for copykat
+if(!require("dlm"))  install.packages(paste0(pipe_dir, "/workflow/dependencies/dlm_1.1-6.tar.gz"))
+library(dlm)
 
-## devtools::load_all(paste0(pipe_dir, "/workflow/dependencies/copykat"))
+## install "ComplexHeatmap", which is required for ArchR
+if(!require("ComplexHeatmap"))  install.packages(paste0(pipe_dir, "/workflow/dependencies/ComplexHeatmap_2.18.0.tar.gz"))
+library(ComplexHeatmap)
 
-## The packages `parallelDist`, `dlm`, and `MCMCpack` are required.
+## load copykat
+if(!require("copykat"))  devtools::load_all(paste0(pipe_dir, "/workflow/dependencies/copykat"))
+library(copykat)
 
-## library(copykat)
+## load ArchR
+if(!require("ArchR"))  devtools::load_all(paste0(pipe_dir, "/workflow/dependencies/ArchR"))
+library(ArchR)
 
 }
 
@@ -101,7 +118,7 @@ anno_gene_v <- "hg38"
 genome(anno_gene) <- anno_gene_v
 }
 
-anno_rds <- paste0(pipe_dir, "/dependencies/EnsDb.Hsapiens.v86_2UCSC_hg38.RDS")
+anno_rds <- paste0(pipe_dir, "/workflow/dependencies/EnsDb.Hsapiens.v86_2UCSC_hg38.RDS")
 anno_gene <- readRDS(anno_rds)
 genome_info <- seqinfo(anno_gene)
 
@@ -224,16 +241,16 @@ if(FALSE){
   qc_percentiles <- apply(qc_df, 2, function(x) quantile(x, probs = probs_s, na.rm = TRUE))
   #qc_quantiles
   qc_percentiles  <- data.frame(qc_percentiles)
-  
+
   idx_RNA <- qc_df$nCount_RNA > max(1000, qc_percentiles$nCount_RNA[2]) &
              qc_df$nCount_RNA < min(25000, qc_percentiles$nCount_RNA[6])
   idx_mt <- qc_df$percent.mt < min(20, qc_percentiles$percent.mt[6])
   idx_ATAC <- qc_df$nCount_ATAC > max(5000, qc_percentiles$nCount_ATAC[2]) &
-              qc_df$nCount_ATAC < min(70000, qc_percentiles$nCount_ATAC[6])  
+              qc_df$nCount_ATAC < min(70000, qc_percentiles$nCount_ATAC[6])
   idx_tss <- qc_df$TSS.enrichment > max(1, qc_percentiles$TSS.enrichment[2])
   idx_ns <- qc_df$nucleosome_signal < min(2, qc_percentiles$nucleosome_signal[6])
-  
-  
+
+
   scMultiome <- subset(
                   x = scMultiome,
                   subset = idx_RNA & idx_mt & idx_ATAC & idx_tss & idx_ns)
@@ -403,11 +420,13 @@ scMultiome[["WNN_SingleR_anno"]] <- expr_anno$labels[idx_m]
 #####################################################
 ## Distinguish the tumor cells from the normal cells
 #####################################################
-## under testing on sever
-if(FALSE){
+
+
+if(TRUE){
 ## Using copyKAT to predicts tumor and normal cells
 ## RNA-seq data based
 
+setwd(out_dir)                                     ## ensure output copykat results to desired folder
 expr_raw <- as.matrix(scMultiome@assays$RNA@counts)
 
 copykat_res <- copykat(rawmat = expr_raw, sam.name = sample_id , id.type = "S", ngene.chr = 5, win.size = 25,
@@ -422,6 +441,7 @@ cell_type[!is.na(idx_s)] <- copykat_res$prediction$copykat.pred[idx_s[!is.na(idx
 
 scMultiome[["copykat_anno"]] <- cell_type
 
+setwd("../")  ## cd back to workdir
 }
 
 
@@ -451,12 +471,12 @@ for (i in 1:L)
                               )
 
   sct_deg_names[i] <- paste0(clusters[i], "_specific")
-  
+
   ## select top 5 upregualted degs per clusters
-  
+
   idx_fc <- sct_deg[[i]][,  2] > 0
   pval <-   sct_deg[[i]][idx_fc,  1]
-  
+
   if (length(pval) == 0) {
     next
   } else {
@@ -465,8 +485,8 @@ for (i in 1:L)
     idx_g <- min(length(pval_s), 5)
     deg_list <- c(deg_list, names(pval_s)[1:idx_g])
   }
-  
-  
+
+
 }
 names(sct_deg) <-  sct_deg_names
 deg_list <- unique(deg_list)        ## remove duplicates
@@ -480,9 +500,9 @@ Misc(scMultiome, slot = "SCT_DEGs_top5") <- deg_list       ## top5 gene names
 source(paste0(pipe_dir, "/workflow/scripts/DoMutiBarHeatmap.R"))
 
 # Show we can sort sub-bars
-#DoHeatmap(scMultiome, features = deg_list, size = 4, angle = 0) 
-DoMultiBarHeatmap(scMultiome, features = scMultiome@misc$SCT_DEGs_top5, assay = 'SCT', 
-                  group.by='WNN_SingleR_anno', label = FALSE, 
+#DoHeatmap(scMultiome, features = deg_list, size = 4, angle = 0)
+DoMultiBarHeatmap(scMultiome, features = scMultiome@misc$SCT_DEGs_top5, assay = 'SCT',
+                  group.by='WNN_SingleR_anno', label = FALSE,
                   additional.group.by = c('copykat_anno', "Phase", 'ATAC_snn_res.0.8',  'SCT_snn_res.0.8', 'wsnn_res.0.8'),
                   additional.group.sort.by = c('wsnn_res.0.8'))
 ggsave(paste0(out_dir, sample_id, "_top5_DEGs_heatMap.png"), width = 16, height = 8.5)
@@ -525,7 +545,7 @@ L <- length(clusters)
 
 DefaultAssay(scMultiome) <- "ATAC"
 atac_dar <- list()
-top_dar <- list()         ## top DARs for motif enrichment analysis 
+top_dar <- list()         ## top DARs for motif enrichment analysis
 atac_dar_names <- c()
 
 
@@ -540,7 +560,7 @@ for (i in 1:L)
                               test.use = 'LR',              ##  using logistic regression
                               #latent.vars = 'peak_region_fragments'     #meta data missing  ## mitigate the effect of differential sequencing depth
                               )
-  
+
   top_dar[[i]]  <- rownames(atac_dar[[i]][atac_dar[[i]]$p_val < 0.005, ])
   atac_dar_names[i] <- paste0(clusters[i], "_specific")
 }
@@ -549,7 +569,23 @@ names(atac_dar) <- names(top_dar) <-  atac_dar_names
 Misc(scMultiome, slot = "ATAC_DARs") <- atac_dar
 Misc(scMultiome, slot = "ATAC_DARs_top") <- top_dar
 
-## motif enrichment 
+## motif enrichment
+## under tuning
+if(FLASE){
+# motif matrices from the JASPAR database
+pfm <- getMatrixSet(x = JASPAR2020,
+         opts = list(collection = "CORE", species = "Homo sapiens"))
+
+# add motif information to scMultiome
+scMultiome <- AddMotifs(object = scMultiome,
+                genome = BSgenome.Hsapiens.UCSC.hg38,
+                pfm = pfm)
+
+## motif enrichment
+enriched.motifs <- FindMotifs(object = scMultiome, features = top.da.peak)
+
+}
+
 }
 
 
@@ -565,13 +601,10 @@ print("The main seurat has been successfully executed !!")
 ##############################################
 ##  GRN: TF-gene gene regulatory network (GRN)
 ## tools:
-##  FigR: https://buenrostrolab.github.io/FigR/ 
+##  FigR: https://buenrostrolab.github.io/FigR/
 ##  Pando: https://quadbio.github.io/Pando/
 ##############################################
 {
-  
-  
+
+
 }
-
-
-

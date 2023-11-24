@@ -176,7 +176,7 @@ VlnPlot(scMultiome, features = "ATAC.weight", group.by = 'wsnn_res.0.8', sort = 
 ```
 
 ## Auto annotation
-### Annotation based on publicly avalialbe references per integrated clusters 
+### Annotation based on publicly avalialbe references per integrated clusters
 The Blueprint/ENCODE reference from R package [celldex](https://bioconductor.org/packages/3.17/data/experiment/vignettes/celldex/inst/doc/userguide.html) is used for automatic annotation.
 
 ```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 15, fig.height= 6}
@@ -245,14 +245,14 @@ p1 + p2   & theme(plot.title = element_text(hjust = 0.5))
 
 
 ## Cluster-specific genes
-Top 5 highly expresssed genes (DEGs) per interagted cluster against other clusters. In addition, the ATAC peaks linked to these top 5 DEGs can be found in `r sample_id`_top5_DEGs_linked_peaks.csv
+Top 5 highly expressed genes (DEGs) per integrated cluster against other clusters. In addition, the ATAC peaks linked to these top 5 DEGs can be found in `r sample_id`_top5_DEGs_linked_peaks.csv
 
 ```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 15, fig.height= 6}
 
 source(paste0(pipe_dir, "/workflow/scripts/DoMutiBarHeatmap.R"))   ## function for multiple bars
 
-DoMultiBarHeatmap(scMultiome, features = scMultiome@misc$SCT_DEGs_top5, assay = 'SCT', 
-                  group.by='WNN_SingleR_anno', label = FALSE, 
+DoMultiBarHeatmap(scMultiome, features = scMultiome@misc$SCT_DEGs_top5, assay = 'SCT',
+                  group.by='WNN_SingleR_anno', label = FALSE,
                   additional.group.by = c('copykat_anno', "Phase", 'ATAC_snn_res.0.8',  'SCT_snn_res.0.8', 'wsnn_res.0.8'),
                   additional.group.sort.by = c('wsnn_res.0.8'))
 #ggsave(paste0(out_dir, sample_id, "_top5_DEGs_heatMap.png"), width = 16, height = 8.5)
@@ -260,10 +260,11 @@ DoMultiBarHeatmap(scMultiome, features = scMultiome@misc$SCT_DEGs_top5, assay = 
 ```
 
 ## Cluster-specific regulatory regions
-Top 5 enriched motif for differential accessible regions (DARs) per interagted cluster against other clusters
+To add motif and TFBS enrichment for Cluster-specific regulatory regions.
+*ArchR::peakAnnoEnrichment + ComplexHeatmap::draw
 
 
-## Gene Regulatory Network 
+## Gene Regulatory Network
 Tools to be considered
-*FigR: https://buenrostrolab.github.io/FigR/ 
+*FigR: https://buenrostrolab.github.io/FigR/
 *Pando: https://quadbio.github.io/Pando/

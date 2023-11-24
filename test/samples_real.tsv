@@ -1,6 +1,7 @@
-sample_id	sample_seq_id	sample_seq_path
-Lung	179647_lung	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA
-Brain	137699_Brain	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA
-Vertebra	137738_Vertebra	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA
-Pleura	179567_Pleura	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA
-Liver	179567_liver	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA
+sample_id	sample_seq_id	gex_seq_path	atac_seq_path
+PBMC_demo	PBMC_demo	/cluster/projects/tcge/scMultiome/iSHARC_test/GEX	/cluster/projects/tcge/scMultiome/iSHARC_test/ATAC
+PRCA_Lung	179647_lung	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/GEX	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/ATAC
+LUAD_XDO344	XDO344	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-LUAD/230111_A00827_0745_BHKMLCDSX5_Tsao_Khadija_multiome/GEX_fastq	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-LUAD/230111_A00827_0745_BHKMLCDSX5_Tsao_Khadija_multiome/ATAC_fastq
+PTLD_LY_126	LY_PTLD_126	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PTLD/PTLD/raw_data/210816_A00827_0385_AHHMKGDRXY_P210038/GEX_fastq	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PTLD/PTLD/raw_data/210816_A00827_0385_AHHMKGDRXY_P210038/ATAC_fastq
+PDAC_PDA_87784	PDA_87784_Pa_P_D_Multirna10x	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PDAC/it-49748/220609_A00827_0592_BHHMHLDSX3_P220004_multiome/GEX_fastq	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PDAC/it-49748/220609_A00827_0592_BHHMHLDSX3_P220004_multiome/ATAC_fastq
+BRCA_A_100672_P1	A_100672_P1	/cluster/projects/tcge/scMultiome/raw_data/BCa_PDX/PDX_scMultiome/GEX	/cluster/projects/tcge/scMultiome/raw_data/BCa_PDX/PDX_scMultiome/ATAC

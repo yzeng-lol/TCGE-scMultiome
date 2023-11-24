@@ -8,6 +8,7 @@ import pandas as pd
 work_dir = config["work_dir"]
 pipe_dir = config["pipe_dir"]
 env_dir = os.getenv("CONDA_PREFIX")
+samples_list = config["samples"]
 
 ######################################################
 ## read in sample and corresponding library file table
@@ -47,11 +48,16 @@ def get_cellranger_arc_ref():
     else:
         return config["arc_ref"]
 
+
+
 #def get_library(wildcards):
 #    return SAMPLES.loc[wildcards.sample]["sample_library"]
 
 def get_sample_seq_id(wildcards):
     return SAMPLES.loc[wildcards.sample]["sample_seq_id"]
 
-def get_sample_seq_path(wildcards):
-    return SAMPLES.loc[wildcards.sample]["sample_seq_path"]
+def get_gex_seq_path(wildcards):
+    return SAMPLES.loc[wildcards.sample]["gex_seq_path"]
+
+def get_atac_seq_path(wildcards):
+    return SAMPLES.loc[wildcards.sample]["atac_seq_path"]

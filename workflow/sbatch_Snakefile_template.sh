@@ -34,7 +34,7 @@ snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
           --cluster-config /cluster/home/yzeng/snakemake/iSHARC/workflow/config/cluster_std_err.json \
           --keep-going  --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
           --cluster "sbatch -p veryhimem -c 12 --mem=100G -J {cluster.jid} -o {cluster.std} -e {cluster.err}" \
-          --latency-wait 60 --jobs 2 -p
+          --latency-wait 60 --jobs 6 -p
 
 
 conda deactivate

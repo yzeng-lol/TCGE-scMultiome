@@ -28,3 +28,11 @@ dependencies:
   - bioconductor-biovizbase
   - bioconductor-ensdb.hsapiens.v86               ## annotations
   - bioconductor-bsgenome.hsapiens.ucsc.hg38
+  - r-paralleldist
+  - r-mcmcpack
+  - bioconductor-tfbstools
+  - bioconductor-jaspar2020
+  - bioconductor-motifmatchr
+  - r-circlize
+  - r-getoptlong
+  - r-clue

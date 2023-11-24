@@ -1,3 +1,3 @@
-sample_id	sample_label	sample_library
-Sample1	Group1	/cluster/home/yzeng/snakemake/iSHARC/test/Sample1_library.csv
-Sample2	Group2	/cluster/home/yzeng/snakemake/iSHARC/test/Sample2_library.csv
+sample_id	sample_seq_id	gex_seq_path	atac_seq_path
+Sample1	Sample1_seq	/path/to/yzeng/Sample1_seq/GEX	/path/to/yzeng/Sample1_seq/ATAC
+Sample2	Sample2_seq	/path/to/yzeng/Sample2_seq/GEX	/path/to/yzeng/Sample2_seq/ATAC
