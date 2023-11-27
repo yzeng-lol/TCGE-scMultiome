@@ -17,8 +17,17 @@ For more modularized downstream analyses, please refer to [COBE](https://www.pmc
 
 Other main output files include:
 
-* `r sample_id`.RDS : Seurat object with all assays' intermediate and final results.
-* `r sample_id`_metaData.csv : Meta table includes QC, clustering and annotation labels per cell
+* `r sample_id`.RDS : Seurat object with all assays' intermediate and final results, in particular:
+  - Seurat_object\@assays$atac_arc: The ATAC assays performed by cellranger_arc
+  - Seurat_object\@assays$ATAC: The ATAC assays performed by alling peaks with MACS
+  - Seurat_object\@assays$SCT\@misc\$DEGs: The WNN cluster-specific differential expressed genes (DEGs) 
+  - Seurat_object\@assays$ATAC\@misc\$DARs: The WNN cluster-specific differential accessible regions (DARs)
+  - Seurat_object\@assays$ATAC\@misc\$DARs_motif: The motif enrichment results for top cluster-specific DARs (p_adj < 0.005 )
+  - Seurat_object\@assays$ATAC\@links: The peaks leaked to the top 5 WNN cluster-specific DEGs
+
+    
+* `r sample_id`_metaData.csv : Meta table includes QC metrics, cell cycle phases, clustering results with RNA, ATAC and integration, singleR annotations, and copykat tumor cell predictions per cell
+
 
 ```{r setup, include=FALSE}
 ##knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
@@ -42,9 +51,9 @@ library(plotly)
 library(knitr)
 library(SingleR)       ## auto annotation
 library(celldex)       ## annotation reference
-#library(heatmaply)
-#library(gapminder)
-#library(gplots)
+library(heatmaply)
+library(gapminder)
+library(gplots)
 ```
 
 ## QC metrics and filtering
@@ -251,10 +260,10 @@ Top 5 highly expressed genes (DEGs) per integrated cluster against other cluster
 
 ```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 15, fig.height= 6}
 
-if(length(scMultiome@misc$SCT_DEGs_top5) > 0){
+if(length(scMultiome@assays$SCT@misc$DEGs_top5) > 0){
 source(paste0(pipe_dir, "/workflow/scripts/DoMutiBarHeatmap.R"))   ## function for multiple bars
 
-DoMultiBarHeatmap(scMultiome, features = scMultiome@misc$SCT_DEGs_top5, assay = 'SCT',
+DoMultiBarHeatmap(scMultiome, features = scMultiome@assays$SCT@misc$DEGs_top5, assay = 'SCT',
                   group.by='WNN_SingleR_anno', label = FALSE,
                   additional.group.by = c('copykat_anno', "Phase", 'ATAC_snn_res.0.8',  'SCT_snn_res.0.8', 'wsnn_res.0.8'),
                   additional.group.sort.by = c('wsnn_res.0.8'))
@@ -263,8 +272,40 @@ DoMultiBarHeatmap(scMultiome, features = scMultiome@misc$SCT_DEGs_top5, assay = 
 ```
 
 ## Cluster-specific regulatory regions
-To add motif and TFBS enrichment for Cluster-specific regulatory regions.
-*ArchR::peakAnnoEnrichment + ComplexHeatmap::draw
+Top 5 enriched motifs and TFBS enrichment for Cluster-specific regulatory regions.
+
+* NOTE: The Seurat_object@assays$ATAC@misc$DARs_motif_hm was called and the -log10(p_adj) > 10  was transferred to 10.
+```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 9.25, fig.height= 4.5}
+{
+mat <- scMultiome@assays$ATAC@misc$DARs_motif_hm
+mat[mat > 10] <- 10
+
+heatmaply(mat,
+        dendrogram = "column",
+        xlab = "Enriched Motifs", ylab = "",
+        main = "",
+        scale = "none",
+        grid_color = "white",
+        grid_width = 0.00001,
+        titleX = FALSE,
+        hide_colorbar = TRUE,
+        branches_lwd = 0.1,
+        label_names = c("Cluster:", "Motif:", "-log10(p_adj):"),
+        fontsize_row = 10, fontsize_col = 10,
+        labCol = colnames(mat),
+        labRow = rownames(mat),
+        #heatmap_layers = theme(axis.line=element_blank()),
+        ## costomize color
+        scale_fill_gradient_fun = ggplot2::scale_fill_gradient2(
+          low = "white",
+          high = "red",
+          #midpoint = 5,
+          limits = c(0, max(max(mat)))
+          )
+       )
+}
+```
+
 
 
 ## Gene Regulatory Network

@@ -35,10 +35,13 @@ anno_rds    = "/cluster/home/yzeng/snakemake/iSHARC/workflow/dependencies/EnsDb.
 ###########################
 ## testing locally with RDS
 rm(list = ls())
-setwd("/Users/yong/OneDrive - UHN/Projects/snakemake/iSHARC_test")
-scMultiome <- readRDS("Lung.RDS")
+setwd("/Users/yong/OneDrive - UHN/Projects/snakemake/iSHARC_test/main_seurat")
+# scMultiome <- readRDS("Lung.RDS")
+# sample_id   = "Lung"
+scMultiome <- readRDS("PDAC_PDA_87784.RDS")
+sample_id   = "PDAC_PDA_87784"
+
 out_dir <- "/Users/yong/OneDrive - UHN/Projects/snakemake/iSHARC_test/main_seurat/"
-sample_id   = "Lung"
 pipe_dir  = "/Users/yong/OneDrive - UHN/Projects/snakemake/iSHARC"
 
 }
@@ -60,6 +63,9 @@ suppressMessages(library(future))          ## for paralleling
 suppressMessages(library(biovizBase))
 suppressMessages(library(EnsDb.Hsapiens.v86))
 suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+
+suppressMessages(library(JASPAR2020))       ## motif enrichment analysis
+suppressMessages(library(TFBSTools)) 
 
 suppressMessages(library(rmarkdown))        ## for HTML QC report
 
@@ -492,8 +498,8 @@ names(sct_deg) <-  sct_deg_names
 deg_list <- unique(deg_list)        ## remove duplicates
 
 ## add to assay's Misc of seuratObject: can call by : scMultiome@misc$
-Misc(scMultiome, slot = "SCT_DEGs") <- sct_deg
-Misc(scMultiome, slot = "SCT_DEGs_top5") <- deg_list       ## top5 gene names
+Misc(scMultiome@assays$SCT, slot = "DEGs") <- sct_deg
+Misc(scMultiome@assays$SCT, slot = "DEGs_top5") <- deg_list       ## top5 gene names
 
 ################################################################
 ## draw heat map for top 5 clusters specifically expressed genes
@@ -536,20 +542,32 @@ write.csv(Links(scMultiome), paste0(out_dir, sample_id, "_top5_DEGs_linked_peaks
 }
 
 
-##########################################
-# identify cluster-specific genes (DEGs)
+############################################################
+# identify cluster-specific genes regulatory regions (DARs)
 ## plus one vs other :: cluster markers
 ## results were add to seuratObject@misc
-########################################
+############################################################
 {
+  
+# motif matrices from the JASPAR database
+pfm <- getMatrixSet(x = JASPAR2020,
+                      opts = list(collection = "CORE", species = "Homo sapiens"))
+  
+# add motif information to scMultiome
+scMultiome <- AddMotifs(object = scMultiome,
+                          genome = BSgenome.Hsapiens.UCSC.hg38,
+                          pfm = pfm)
+  
+### DARs and motif enrichment   
 clusters <- levels(scMultiome)
 L <- length(clusters)
 
 DefaultAssay(scMultiome) <- "ATAC"
 atac_dar <- list()
-top_dar <- list()         ## top DARs for motif enrichment analysis
+atac_dar_motif <- list()
+#top_dar <- list()         ## top DARs for motif enrichment analysis
+enriched_motifs <- vector()     ## top 5 per cluster
 atac_dar_names <- c()
-
 
 ## identify DARs
 for (i in 1:L)
@@ -562,31 +580,61 @@ for (i in 1:L)
                               test.use = 'LR',              ##  using logistic regression
                               #latent.vars = 'peak_region_fragments'     #meta data missing  ## mitigate the effect of differential sequencing depth
                               )
-
-  top_dar[[i]]  <- rownames(atac_dar[[i]][atac_dar[[i]]$p_val < 0.005, ])
-  atac_dar_names[i] <- paste0(clusters[i], "_specific")
+  
+  ## all DARs
+  if(nrow(atac_dar[[i]]) == 0){
+    next;
+  } else{
+  
+  ## only examine top DARs for motif enrichment analysis  
+  idx_top <- atac_dar[[i]]$p_val_adj < 0.005
+  motif_res <- FindMotifs(object = scMultiome, features = rownames(atac_dar[[i]])[idx_top])
+  motif_en <- motif_res[motif_res$p.adjust < 0.05, ]
+  atac_dar_motif[[i]]  <- motif_en
+  
+  ## top 5  per 
+  if(nrow(motif_en) > 0){
+    idx_top <- min(nrow(motif_en), 5)
+    enriched_motifs <- c(enriched_motifs, motif_en$motif.name[1:idx_top]) 
+  }
+    
+  }
+  
 }
-names(atac_dar) <- names(top_dar) <-  atac_dar_names
+
+names(atac_dar) <- names(atac_dar_motif) <-  clusters
+enriched_motifs <- unique(enriched_motifs)        ## enriched_motif name 
+
+### pull out top 5 motifs per cluster for heatmap 
+### -log10(p-adj)
+{
+  motif_hm <- matrix(0,  length(clusters), length(enriched_motifs))
+  colnames(motif_hm) <- enriched_motifs
+  rownames(motif_hm) <- clusters
+  
+  for (i in 1:L)
+  {
+    idx_motif <- match(colnames(motif_hm), atac_dar_motif[[i]]$motif.name)
+    if(sum(is.na(idx_motif)) == length(idx_motif)){
+      next;} else {
+    motif_hm[i, !is.na(idx_motif)] <- -log10(atac_dar_motif[[i]]$p.adjust[idx_motif[!is.na(idx_motif)]])
+    }
+  }
+  
+  ## rm rows are all 0s
+  motif_hm[motif_hm < -log10(0.05)] <- 0     ## ensuring motifs are significant 
+  idx_0 <- rowSums(motif_hm) == 0
+  
+  motif_hm <- motif_hm[!idx_0, ]
+  
+  ## 
+  
+}
+
 ## unlist(lapply(atac_dar, nrow))
-Misc(scMultiome, slot = "ATAC_DARs") <- atac_dar
-Misc(scMultiome, slot = "ATAC_DARs_top") <- top_dar
-
-## motif enrichment
-## under tuning
-if(FALSE){
-# motif matrices from the JASPAR database
-pfm <- getMatrixSet(x = JASPAR2020,
-         opts = list(collection = "CORE", species = "Homo sapiens"))
-
-# add motif information to scMultiome
-scMultiome <- AddMotifs(object = scMultiome,
-                genome = BSgenome.Hsapiens.UCSC.hg38,
-                pfm = pfm)
-
-## motif enrichment
-enriched.motifs <- FindMotifs(object = scMultiome, features = top.da.peak)
-
-}
+Misc(scMultiome@assays$ATAC, slot = "DARs") <- atac_dar
+Misc(scMultiome@assays$ATAC, slot = "DARs_motif") <- atac_dar_motif
+Misc(scMultiome@assays$ATAC, slot = "DARs_motif_hm") <- motif_hm
 
 }
 
