@@ -499,6 +499,7 @@ Misc(scMultiome, slot = "SCT_DEGs_top5") <- deg_list       ## top5 gene names
 ## draw heat map for top 5 clusters specifically expressed genes
 source(paste0(pipe_dir, "/workflow/scripts/DoMutiBarHeatmap.R"))
 
+if(length(deg_list) > 0) {
 # Show we can sort sub-bars
 #DoHeatmap(scMultiome, features = deg_list, size = 4, angle = 0)
 DoMultiBarHeatmap(scMultiome, features = scMultiome@misc$SCT_DEGs_top5, assay = 'SCT',
@@ -509,7 +510,7 @@ ggsave(paste0(out_dir, sample_id, "_top5_DEGs_heatMap.png"), width = 16, height 
 
 ##############################
 ## Linking peaks to top 5 DEGs
-{
+
 DefaultAssay(scMultiome) <- "ATAC"
 bsgenome <- BSgenome.Hsapiens.UCSC.hg38     ## for GC correction
 
@@ -530,6 +531,7 @@ scMultiome <- LinkPeaks(
 )
 write.csv(Links(scMultiome), paste0(out_dir, sample_id, "_top5_DEGs_linked_peaks.csv"))
 }
+
 
 }
 
@@ -571,7 +573,7 @@ Misc(scMultiome, slot = "ATAC_DARs_top") <- top_dar
 
 ## motif enrichment
 ## under tuning
-if(FLASE){
+if(FALSE){
 # motif matrices from the JASPAR database
 pfm <- getMatrixSet(x = JASPAR2020,
          opts = list(collection = "CORE", species = "Homo sapiens"))
@@ -593,8 +595,8 @@ enriched.motifs <- FindMotifs(object = scMultiome, features = top.da.peak)
 ## output Rdata
 ################
 saveRDS(scMultiome, file = paste0(out_dir, sample_id, ".RDS"))
-
 write.csv(scMultiome@meta.data,  file = paste0(out_dir, sample_id, "_metaData.csv"))
+
 print("The main seurat has been successfully executed !!")
 
 

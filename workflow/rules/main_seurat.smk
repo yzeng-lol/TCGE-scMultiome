@@ -44,4 +44,5 @@ rule qc_and_results_report:
         "    {params.work_dir}/main_seurat/{wildcards.sample}_scMultiome_QC_and_Primary_Results_Report.Rmd && "
         "Rscript --vanilla {params.pipe_dir}/workflow/scripts/qc_and_results_report.R "
         "  {wildcards.sample} {params.work_dir}/{input} "
-        "  {params.work_dir}/main_seurat/{wildcards.sample}_scMultiome_QC_and_Primary_Results_Report.Rmd) 2> {log}"
+        "  {params.work_dir}/main_seurat/{wildcards.sample}_scMultiome_QC_and_Primary_Results_Report.Rmd "
+        "  {params.pipe_dir}) 2> {log}"

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -p all              ## Specify SLURM partition for job submssion
 #SBATCH -t 5-00:00:00
-#SBATCH --mem=1G
+#SBATCH --mem=10G
 #SBATCH -J submit_snakemake_%j
 #SBATCH -o submit_snakemake_%j.out
 #SBATCH -e submit_snakemake_%j.err
@@ -33,7 +33,7 @@ snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
           --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
           --cluster-config /cluster/home/yzeng/snakemake/iSHARC/workflow/config/cluster_std_err.json \
           --keep-going  --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
-          --cluster "sbatch -p veryhimem -c 12 --mem=100G -J {cluster.jid} -o {cluster.std} -e {cluster.err}" \
+          --cluster "sbatch -p veryhimem -c 12 --mem=150G -J {cluster.jid} -o {cluster.std} -e {cluster.err}" \
           --latency-wait 60 --jobs 6 -p
 
 
