@@ -65,7 +65,7 @@ suppressMessages(library(EnsDb.Hsapiens.v86))
 suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
 
 suppressMessages(library(JASPAR2020))       ## motif enrichment analysis
-suppressMessages(library(TFBSTools)) 
+suppressMessages(library(TFBSTools))
 
 suppressMessages(library(rmarkdown))        ## for HTML QC report
 
@@ -459,6 +459,7 @@ setwd("../")  ## cd back to workdir
 {
 clusters <- levels(scMultiome)
 L <- length(clusters)
+cluster_cnt <- table(scMultiome$seurat_clusters)
 
 DefaultAssay(scMultiome) <- "SCT"
 sct_deg <- list()
@@ -469,6 +470,11 @@ deg_list <- vector() ## top 5 degs per clusters
 ## Identify DEGs
 for (i in 1:L)
 {
+  if(cluster_cnt[i] <=3 ){
+
+  sct_deg[[i]] <- list()
+
+  } else {
   ## one vs all others: prefiltering
   sct_deg[[i]] <- FindMarkers(scMultiome, ident.1 = clusters[i], ident.2 = NULL,
                               min.pct = 0.5,                ## detected at least 50% frequency in either ident.
@@ -476,25 +482,28 @@ for (i in 1:L)
                               min.diff.pct = 0.25,          ## Pre-filter features whose detection percentages across the two groups are similar
                               )
 
-  sct_deg_names[i] <- paste0(clusters[i], "_specific")
-
+  #sct_deg_names[i] <- paste0(clusters[i], "_specific")
   ## select top 5 upregualted degs per clusters
 
   idx_fc <- sct_deg[[i]][,  2] > 0
   pval <-   sct_deg[[i]][idx_fc,  1]
 
-  if (length(pval) == 0) {
-    next
-  } else {
-    names(pval) <- rownames(sct_deg[[i]])[idx_fc]
-    pval_s <- sort(pval)
-    idx_g <- min(length(pval_s), 5)
-    deg_list <- c(deg_list, names(pval_s)[1:idx_g])
+    if (length(pval) == 0) {
+      next
+      } else {
+      names(pval) <- rownames(sct_deg[[i]])[idx_fc]
+      pval_s <- sort(pval)
+      idx_g <- min(length(pval_s), 5)
+      deg_list <- c(deg_list, names(pval_s)[1:idx_g])
+      }
+
   }
 
-
 }
-names(sct_deg) <-  sct_deg_names
+
+
+
+names(sct_deg) <-  clusters         ##sct_deg_names
 deg_list <- unique(deg_list)        ## remove duplicates
 
 ## add to assay's Misc of seuratObject: can call by : scMultiome@misc$
@@ -548,17 +557,17 @@ write.csv(Links(scMultiome), paste0(out_dir, sample_id, "_top5_DEGs_linked_peaks
 ## results were add to seuratObject@misc
 ############################################################
 {
-  
+
 # motif matrices from the JASPAR database
 pfm <- getMatrixSet(x = JASPAR2020,
                       opts = list(collection = "CORE", species = "Homo sapiens"))
-  
+
 # add motif information to scMultiome
 scMultiome <- AddMotifs(object = scMultiome,
                           genome = BSgenome.Hsapiens.UCSC.hg38,
                           pfm = pfm)
-  
-### DARs and motif enrichment   
+
+### DARs and motif enrichment
 clusters <- levels(scMultiome)
 L <- length(clusters)
 
@@ -580,38 +589,45 @@ for (i in 1:L)
                               test.use = 'LR',              ##  using logistic regression
                               #latent.vars = 'peak_region_fragments'     #meta data missing  ## mitigate the effect of differential sequencing depth
                               )
-  
-  ## all DARs
-  if(nrow(atac_dar[[i]]) == 0){
-    next;
+
+  ## top DARs for motif enrichment analysis
+  idx_top <- atac_dar[[i]]$p_val_adj < 0.005   ## requiring at least 10 RegionStats
+
+  if(nrow(atac_dar[[i]]) == 0 | sum(idx_top) < 10){
+    atac_dar_motif[[i]] <- list()
   } else{
-  
-  ## only examine top DARs for motif enrichment analysis  
-  idx_top <- atac_dar[[i]]$p_val_adj < 0.005
+
+  ## only examine top DARs for motif enrichment analysis
+  #idx_top <- atac_dar[[i]]$p_val_adj < 0.005
   motif_res <- FindMotifs(object = scMultiome, features = rownames(atac_dar[[i]])[idx_top])
+
+  ## add p.adjust using BH correction, which might miss for early version of FindMotifs
+  p.adjust <- p.adjust(motif_res$pvalue, method = "BH")
+  motif_res <- data.frame(motif_res, p.adjust)
+
   motif_en <- motif_res[motif_res$p.adjust < 0.05, ]
   atac_dar_motif[[i]]  <- motif_en
-  
-  ## top 5  per 
+
+  ## top 5 enriched motifs
   if(nrow(motif_en) > 0){
-    idx_top <- min(nrow(motif_en), 5)
-    enriched_motifs <- c(enriched_motifs, motif_en$motif.name[1:idx_top]) 
+    idx_top5 <- min(nrow(motif_en), 5)
+    enriched_motifs <- c(enriched_motifs, motif_en$motif.name[1:idx_top5])
   }
-    
+
   }
-  
+
 }
 
 names(atac_dar) <- names(atac_dar_motif) <-  clusters
-enriched_motifs <- unique(enriched_motifs)        ## enriched_motif name 
+enriched_motifs <- unique(enriched_motifs)        ## enriched_motif name
 
-### pull out top 5 motifs per cluster for heatmap 
+### pull out top 5 motifs per cluster for heatmap
 ### -log10(p-adj)
 {
   motif_hm <- matrix(0,  length(clusters), length(enriched_motifs))
   colnames(motif_hm) <- enriched_motifs
   rownames(motif_hm) <- clusters
-  
+
   for (i in 1:L)
   {
     idx_motif <- match(colnames(motif_hm), atac_dar_motif[[i]]$motif.name)
@@ -620,15 +636,15 @@ enriched_motifs <- unique(enriched_motifs)        ## enriched_motif name
     motif_hm[i, !is.na(idx_motif)] <- -log10(atac_dar_motif[[i]]$p.adjust[idx_motif[!is.na(idx_motif)]])
     }
   }
-  
+
   ## rm rows are all 0s
-  motif_hm[motif_hm < -log10(0.05)] <- 0     ## ensuring motifs are significant 
+  motif_hm[motif_hm < -log10(0.05)] <- 0     ## ensuring motifs are significant
   idx_0 <- rowSums(motif_hm) == 0
-  
+
   motif_hm <- motif_hm[!idx_0, ]
-  
-  ## 
-  
+
+  ##
+
 }
 
 ## unlist(lapply(atac_dar, nrow))

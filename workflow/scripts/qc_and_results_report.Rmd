@@ -20,14 +20,15 @@ Other main output files include:
 * `r sample_id`.RDS : Seurat object with all assays' intermediate and final results, in particular:
   - Seurat_object\@assays$atac_arc: The ATAC assays performed by cellranger_arc
   - Seurat_object\@assays$ATAC: The ATAC assays performed by alling peaks with MACS
-  - Seurat_object\@assays$SCT\@misc\$DEGs: The WNN cluster-specific differential expressed genes (DEGs) 
+  - Seurat_object\@assays$SCT\@misc\$DEGs: The WNN cluster-specific differential expressed genes (DEGs)
   - Seurat_object\@assays$ATAC\@misc\$DARs: The WNN cluster-specific differential accessible regions (DARs)
   - Seurat_object\@assays$ATAC\@misc\$DARs_motif: The motif enrichment results for top cluster-specific DARs (p_adj < 0.005 )
   - Seurat_object\@assays$ATAC\@links: The peaks leaked to the top 5 WNN cluster-specific DEGs
 
-    
+
 * `r sample_id`_metaData.csv : Meta table includes QC metrics, cell cycle phases, clustering results with RNA, ATAC and integration, singleR annotations, and copykat tumor cell predictions per cell
 
+* `r sample_id`_scMultiome_QC_and_Primary_Results_Report.Rmd: The reference codes for generating corresponding figures in this report.
 
 ```{r setup, include=FALSE}
 ##knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
@@ -256,7 +257,7 @@ p1 + p2   & theme(plot.title = element_text(hjust = 0.5))
 
 
 ## Cluster-specific genes
-Top 5 highly expressed genes (DEGs) per integrated cluster against other clusters. In addition, the ATAC peaks linked to these top 5 DEGs can be found in `r sample_id`_top5_DEGs_linked_peaks.csv
+Top 5 highly expressed genes (DEGs) per integrated cluster against other clusters. In addition, the ATAC peaks linked to these top 5 DEGs can be found in `r sample_id`_top5_DEGs_linked_peaks.csv. It will be vacant if no genes passed the preset cut-offs.
 
 ```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 15, fig.height= 6}
 
@@ -274,10 +275,12 @@ DoMultiBarHeatmap(scMultiome, features = scMultiome@assays$SCT@misc$DEGs_top5, a
 ## Cluster-specific regulatory regions
 Top 5 enriched motifs and TFBS enrichment for Cluster-specific regulatory regions.
 
-* NOTE: The Seurat_object@assays$ATAC@misc$DARs_motif_hm was called and the -log10(p_adj) > 10  was transferred to 10.
+* NOTE: The Seurat_object@assays$ATAC@misc$DARs_motif_hm was called and the -log10(p_adj) > 10  was transferred to 10. It will be vacant if no motifs enriched and/or passed the preset cut-offs.
 ```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 9.25, fig.height= 4.5}
 {
 mat <- scMultiome@assays$ATAC@misc$DARs_motif_hm
+
+if (nrow(mat) > 0){
 mat[mat > 10] <- 10
 
 heatmaply(mat,
@@ -303,6 +306,8 @@ heatmaply(mat,
           limits = c(0, max(max(mat)))
           )
        )
+     }
+
 }
 ```
 
