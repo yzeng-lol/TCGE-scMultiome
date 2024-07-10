@@ -280,7 +280,7 @@ Top 5 enriched motifs and TFBS enrichment for Cluster-specific regulatory region
 {
 mat <- scMultiome@assays$ATAC@misc$DARs_motif_hm
 
-if (nrow(mat) > 0){
+if (isTRUE(nrow(mat) > 0)){
 mat[mat > 10] <- 10
 
 heatmaply(mat,

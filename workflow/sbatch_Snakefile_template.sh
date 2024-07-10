@@ -33,8 +33,9 @@ snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
           --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
           --cluster-config /cluster/home/yzeng/snakemake/iSHARC/workflow/config/cluster_std_err.json \
           --keep-going  --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
-          --cluster "sbatch -p veryhimem -c 12 --mem=150G -J {cluster.jid} -o {cluster.std} -e {cluster.err}" \
+          --cluster "sbatch -p veryhimem -c 12 --mem=600G -J {cluster.jid} -o {cluster.std} -e {cluster.err} -t 5-00:00:00" \
           --latency-wait 60 --jobs 6 -p
 
+## using higher mem for large dataset integration 
 
 conda deactivate

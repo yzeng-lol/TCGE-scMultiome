@@ -1,6 +1,6 @@
-#######################
-## main branch
-#######################
+#################################################
+## Perform QC and exploration analysis per sample
+#################################################
 rule main_seurat:
     input:
         gex = "arc_count/{sample}/outs/filtered_feature_bc_matrix.h5",

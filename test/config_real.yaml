@@ -18,6 +18,10 @@ arc_ref: /cluster/tools/data/commondata/cellranger/refdata-cellranger-arc-GRCh38
 ### Templates can be found in ./iSHARC/test
 samples: /cluster/home/yzeng/snakemake/iSHARC/test/samples_real.tsv
 
+## whether to integrate samples
+integration: True       ## True or False
+samples_integr: /cluster/home/yzeng/snakemake/iSHARC/test/samples_integration_real.tsv  ## all samples with group info to be integrated
+
 
 ##############################
 ## parameters to be customized
