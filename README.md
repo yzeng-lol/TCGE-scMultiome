@@ -14,8 +14,6 @@ Work-in-progress
 
 ### How it works
 This schematic diagram shows you how pipeline will be working:
-- We are focusing on the main branch right now (Highlighted Blue)
-
 <img src="figures/scMultiome_workflow.png" alt="Schematic_diagram" style="width:100.0%" />
 
 
