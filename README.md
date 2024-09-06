@@ -1,13 +1,13 @@
-# iSHARC: <ins>I</ins>ntegrating <ins>s</ins>cMultiome data for <ins>h</ins>eterogeneity <ins>a</ins>nd <ins>r</ins>egulatory analysis in <ins>c</ins>ancer (v1.0.0_pre-alpha)
+# iSHARC: <ins>I</ins>ntegrating <ins>s</ins>cMultiome data for <ins>h</ins>eterogeneity <ins>a</ins>nd <ins>r</ins>egulatory analysis in <ins>c</ins>ancer (v1.0.0_alpha)
 
 
 ## Introduction
-This pipeline is designed for automated end-to-end quality control (QC) and analysis of scMultiome data. It has been developed by [Yong Zeng](mailto:yzeng@uhnresearch.ca), building upon some prior efforts from Mathieu Lupien Lab and feedback from scMultiome Working Group at PMCC...
+This pipeline is designed for automated end-to-end quality control (QC) and analysis of 10x Genomics scMultiome data. It has been developed by [Yong Zeng](mailto:yzeng@uhnresearch.ca), building upon some prior efforts from Mathieu Lupien Lab and feedbacks from scMultiome Working Group at Princess Margaret Cancer Centre.
 
 
 ### Features
-- **Portability**: The pipeline was developed with [Snakemake](https://snakemake.readthedocs.io/en/stable/index.html), which will automatically deploy the execution environments. Users can also specify the version of softwares to be installed in YAML files. It can also be performed across different cluster engines (e.g. SLURM) or stand-alone machines.
-- **Flexibility**: The pipeline can be applied to individual samples, as well as to aggregate multiple samples from large-scale profiling.
+- **Portability**: The pipeline was developed with [Snakemake](https://snakemake.readthedocs.io/en/stable/index.html), which will automatically deploy the execution environments. It can also be performed across different cluster engines (e.g. SLURM) or stand-alone machines.
+- **Flexibility**: The pipeline can be applied to individual samples, as well as to integrate multiple samples from various conditions.
 
 ### Citation
 Work-in-progress
@@ -49,7 +49,7 @@ This schematic diagram shows you how pipeline will be working:
 		    --conda-prefix ${CONDA_PREFIX}_extra_env \
 	            --use-conda --conda-create-envs-only -c 1 -p
 	```
-5) The [cellranger_arc](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc) and corresponding genome reference, such as [GRCh38](https://cf.10xgenomics.com/supp/cell-arc/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz), must be installed and downloaded prior to a full run. You will need to specify their PATHS in the config.yaml file.  
+5) The [cellranger_arc](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc), [MACS2](https://github.com/macs3-project/MACS/wiki/Install-macs2) and corresponding genome reference, such as [GRCh38](https://cf.10xgenomics.com/supp/cell-arc/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz), must be installed and downloaded prior to a full run. You will need to specify their PATHS in the config.yaml file.  
 
 6) Run on HPCs
 	You can also submit this pipeline to clusters with the template ./workflow/sbatch_Snakefile_template.sh. This template is for SLURM, however, it could be modified to different resource management systems. More details about cluster configuration can be found at [here](https://snakemake.readthedocs.io/en/stable/executing/cluster.html).

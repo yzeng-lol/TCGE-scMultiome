@@ -26,16 +26,15 @@ if(FALSE){
 
 ## testing locally
 rm (list = ls())
-setwd("/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC_test")
+setwd("/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC_test/main_seurat")
 
 library(rmarkdown)
 
 #### testing PDAC_PDA_87784
 render("/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC/workflow/scripts/qc_and_results_report.rmd",
-       output_dir = "./",  params = list(readin = "/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC_test/main_seurat/PDAC_PDA_87784.RDS", 
+       output_dir = "./",  params = list(readin = "/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC_test/main_seurat/PDAC_PDA_87784.RDS",
                                          sample_id = "PDAC_PDA_87784",
                                          pipe_dir = "/Users/yong/OneDrive - UHN/Projects/snakemake/iSHARC"))
-
 
 ## testing sample Lung
 #render("/Users/yong/OneDrive_UHN/Projects/snakemake/iSHARC/workflow/scripts/qc_and_results_report.rmd",
