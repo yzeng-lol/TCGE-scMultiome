@@ -43,16 +43,16 @@ def get_rule_all_input():
     if config["integration"]:
         #integrated_rna = "integration/rna/RNA_integrated_by_anchors.RDS",
         #integrated_atac = "integration/atac/ATAC_integrated_by_anchors.RDS",
-        integrated_rna_atac_harmony =  "integration/wnn/harmony/RNA_ATAC_integrated_by_WNN.RDS",
-        integrated_rna_atac_anchor =  "integration/wnn/anchor/RNA_ATAC_integrated_by_WNN.RDS",
-        integrate_report = "integration/Integrated_scMultiome_QC_and_Primary_Results_Report.html",
+        integrated_rna_atac_harmony =  "integrated_samples/wnn/harmony/RNA_ATAC_integrated_by_WNN.RDS",
+        integrated_rna_atac_anchor =  "integrated_samples/wnn/anchor/RNA_ATAC_integrated_by_WNN.RDS",
+        integrate_report = "integrated_samples/Integrated_samples_QC_and_Primary_Results.html",
 
-        return  extra_env + integrate_report   #+ integrated_rna_atac_harmony + integrated_rna_atac_anchor #+ integrated_rna + integrated_atac +
+        return  extra_env + integrated_rna_atac_harmony + integrated_rna_atac_anchor # + integrate_report
 
     else:         ## process individual sample
         arc_out = expand("arc_count/{samples}/outs/atac_fragments.tsv.gz", samples = SAMPLES["sample_id"]),
-        main_out = expand("main_seurat/{samples}.RDS", samples = SAMPLES["sample_id"]),
-        qc_report = expand("main_seurat/{samples}_scMultiome_QC_and_Primary_Results_Report.html", samples = SAMPLES["sample_id"]),
+        main_out = expand("individual_samples/{samples}/{samples}_extended_seurat_object.RDS", samples = SAMPLES["sample_id"]),
+        qc_report = expand("individual_samples/{samples}/{samples}_QC_and_Primary_Results.html", samples = SAMPLES["sample_id"]),
 
         return  extra_env + arc_out + main_out + qc_report
 
@@ -64,9 +64,8 @@ def get_rule_all_input():
 ###############################
 ##  get corresponding bwa_index
 def get_cellranger_arc_ref():
-    if config["pdx"]:
-        #return reference for PDX data
-        return config["pdx_ref"]
+    if config["arc_perf"]:
+        return ""
     else:
         return config["arc_ref"]
 
@@ -82,3 +81,6 @@ def get_gex_seq_path(wildcards):
 
 def get_atac_seq_path(wildcards):
     return SAMPLES.loc[wildcards.sample]["atac_seq_path"]
+
+def get_arc_outs_path(wildcards):
+    return SAMPLES.loc[wildcards.sample]["arc_outs_path"]

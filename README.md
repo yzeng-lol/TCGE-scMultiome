@@ -1,4 +1,4 @@
-# iSHARC: <ins>I</ins>ntegrating <ins>s</ins>cMultiome data for <ins>h</ins>eterogeneity <ins>a</ins>nd <ins>r</ins>egulatory analysis in <ins>c</ins>ancer (v1.0.0_alpha)
+# iSHARC: <ins>I</ins>ntegrating <ins>s</ins>cMultiome data for <ins>h</ins>eterogeneity <ins>a</ins>nd <ins>r</ins>egulatory analysis in <ins>c</ins>ancer (v1.0.0_beta)
 
 
 ## Introduction
@@ -56,6 +56,3 @@ This schematic diagram shows you how pipeline will be working:
 	## Test run by SLURM submission, need to modify the PATHs accord your own real dataset
 	$ sbatch ./workflow/sbatch_Snakefile_template.sh
 	```
-
-## Assets and Troubleshooting
-to be added ...

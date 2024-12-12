@@ -15,12 +15,12 @@ conda activate iSHARC
 
 ## mkdir for cluster submission logs
 ## defined in .workflow/config/cluster_std_err.json
-cd  /cluster/projects/tcge/scMultiome/iSHARC_test
+cd  /cluster/projects/tcge/scMultiome/iSHARC_demo_3samples
 mkdir -p logs_cluster
 
 ## unlock workdir just in case the folder locked accidently before
 snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
-          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_demo_3samples.yaml \
           --unlock
 
 ## -p   partition to submit for SLURM
@@ -29,13 +29,11 @@ snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
 ## keep-going: Go on with independent jobs if a job fails
 ## sbatch -c :  maximal 12 threads per multithreading job by default, less -c INT  will be scaled down to INT
 
-
-
 snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
-          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_demo_3samples.yaml \
           --cluster-config /cluster/home/yzeng/snakemake/iSHARC/workflow/config/cluster_std_err.json \
           --keep-going  --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
-          --cluster "sbatch -p himem -c 12 --mem=60G -J {cluster.jid} -o {cluster.std} -e {cluster.err} -t 5-00:00:00" \
+          --cluster "sbatch -p veryhimem -c 12 --mem=80G -J {cluster.jid} -o {cluster.std} -e {cluster.err} -t 5-00:00:00" \
           --latency-wait 60 --jobs 6 -p
 
 ## using higher mem for large dataset integration

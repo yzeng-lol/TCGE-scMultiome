@@ -5,11 +5,11 @@
 ### PATH for pipeline and working diretor
 ### for enclosed packages failed to be autimatically installed by conda,
 pipe_dir: /cluster/home/yzeng/snakemake/iSHARC                  # Full PATH to the iSHARC package
-work_dir: /cluster/home/yzeng/snakemake/iSHARC/test/test_res             # for testing
+work_dir: /cluster/projects/tcge/scMultiome/iSHARC_demo_3samples             # for 3 samples integration demostration
 
 #############################################################
 ## whether the cellranger_arc performed or not
-arc_perf: True      ## starting from the FASTQ files; arc_dir and arc_ref are requied as reference below
+arc_perf: FALSE      ## starting from the FASTQ files; arc_dir and arc_ref are requied as reference below
 ## arc_perf: True    ## starting from provided cellranger_arc outputs; arc_dir and arc_ref could be NA
 
 ## cellranger will not be installed by the iSHARC
@@ -21,11 +21,11 @@ arc_ref: /cluster/tools/data/commondata/cellranger/refdata-cellranger-arc-GRCh38
 ### Samples Sequencing information
 ### Need to spcify your own sample_template.tsv and sample_library.csv files accordingly!!
 ### Templates can be found in ./iSHARC/test
-samples: /cluster/home/yzeng/snakemake/iSHARC/test/samples_template.tsv
+samples: /cluster/home/yzeng/snakemake/iSHARC/test/demo_3samples.tsv
 
 ## whether to integrate samples
 integration: True       ## True or False
-samples_integr: /cluster/home/yzeng/snakemake/iSHARC/test/samples_integration_template.tsv  ## all samples with group info to be integrated
+samples_integr: /cluster/home/yzeng/snakemake/iSHARC/test/demo_3samples_integration.tsv  ## all samples with group info to be integrated
 
 
 #######################
