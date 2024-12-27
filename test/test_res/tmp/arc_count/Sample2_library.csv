@@ -1,3 +1,0 @@
-fastqs,sample,library_type
-/cluster/home/yzeng/snakemake/iSHARC/test/dummy_data/Sample2_seq/GEX,Sample2_seq,Gene Expression
-/cluster/home/yzeng/snakemake/iSHARC/test/dummy_data/Sample2_seq/ATAC,Sample2_seq,Chromatin Accessibility

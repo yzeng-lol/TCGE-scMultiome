@@ -39,7 +39,7 @@ This schematic diagram shows you how pipeline will be working:
 	$ mamba env create --file conda_env.yaml
 	```
 
-4) Test run
+4) Install pipeline\'s additional environment
 	> **IMPORTANT**: ONLY EXTRA ENVIRONMENTS WILL BE INSTALLED, MAKE SURE YOU STILL HAVE INTERNET ACCESS.
 
 	```bash
@@ -49,16 +49,18 @@ This schematic diagram shows you how pipeline will be working:
 		    --conda-prefix ${CONDA_PREFIX}_extra_env \
 	            --use-conda --conda-create-envs-only -c 1 -p
 	```
-5) Before starting a run with FASTQ files, ensure that [Cell Ranger ARC](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc) and corresponding genome reference (e.g., [GRCh38](https://cf.10xgenomics.com/supp/cell-arc/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz)) are installed and downloaded. You will need to specify their PATHs in the config.yaml file. If you are starting with existing Cell Ranger ARC outputs, these steps can be skipped.
+5) Test run
+	To perform a test run using the demo dataset, refer to the configuration and sample information templates and introductions provided within the [test](./test/) folder.
+
 
 6) Run on HPCs
-	You can submit this pipeline to clusters with the [template](./workflow/sbatch_Snakefile_template.sh). While this template is configured for SLURM, it can be adapted for other resource management systems. For More details about cluster configuration, refer to the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executing/cluster.html).
+	You can also submit this pipeline to clusters with the [template](./workflow/sbatch_Snakefile_template.sh). While this template is configured for SLURM, it can be adapted for other resource management systems. For More details about cluster configuration, refer to the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executing/cluster.html).
 
 	```bash
 	## Test run by SLURM submission, need to modify the PATHs accord your own real dataset
 	$ sbatch ./workflow/sbatch_Snakefile_template.sh
 	```
 
-	
+
 ## Trouble Shooting
 For troubleshooting issues related to pipeline installation and execution, please refer to [this document](./assets/Trouble_Shooting.md). This document will be continuously updated to address errors reported by users.
