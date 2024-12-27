@@ -2,15 +2,17 @@
 
 
 ## Introduction
-This pipeline is designed for automated end-to-end quality control (QC) and analysis of 10x Genomics scMultiome data. It has been developed by [Yong Zeng](mailto:yzeng@uhnresearch.ca), building upon some prior efforts from Mathieu Lupien Lab and feedbacks from scMultiome Working Group at Princess Margaret Cancer Centre.
+This pipeline is designed for automated, end-to-end quality control (QC) and analysis of 10x Genomics scMultiome data (paired snRNA-seq and snATAC-seq data). It was developed by [Yong Zeng](mailto:yzeng@uhn.ca), building on prior contributions from the Mathieu Lupien Lab and incorporating feedback from the scMultiome Working Group at the Princess Margaret Cancer Centre.
 
 
 ### Features
-- **Portability**: The pipeline was developed with [Snakemake](https://snakemake.readthedocs.io/en/stable/index.html), which will automatically deploy the execution environments. It can also be performed across different cluster engines (e.g. SLURM) or stand-alone machines.
-- **Flexibility**: The pipeline can be applied to individual samples, as well as to integrate multiple samples from various conditions.
+- **Portability**: The pipeline was developed using [Snakemake](https://snakemake.readthedocs.io/en/stable/index.html), which will automatically deploy the execution environments. It supports execution across various cluster engines (e.g., SLURM) or on standalone machines.
+- **Flexibility**: The pipeline is versatile, enabling analysis of individual samples as well as the integration of multiple samples from different conditions.
+
 
 ### Citation
 Work-in-progress
+
 
 ### How it works
 This schematic diagram shows you how pipeline will be working:
@@ -18,7 +20,7 @@ This schematic diagram shows you how pipeline will be working:
 
 
 ## Installation
-1) Make sure that you have a Conda-based Python3 distribution(e.g.,the [Miniconda](https://docs.conda.io/en/latest/miniconda.html)). The Miniconda3-py38_23.3.1-0-Linux-x86_64.sh for Linux is preferred to avoid potential conflicts. The installation of [Mamba](https://github.com/mamba-org/mamba) is also recommended:
+1) Ensure you have a Conda-based Python3 distribution installed (e.g.,the [Miniconda](https://docs.conda.io/en/latest/miniconda.html)). If your Conda version is earlier than v23.10.0, it is recommended to install [Mamba](https://github.com/mamba-org/mamba) for improved performance and reliability
 
 	```bash
 	$ conda install -n base -c conda-forge mamba
@@ -47,12 +49,16 @@ This schematic diagram shows you how pipeline will be working:
 		    --conda-prefix ${CONDA_PREFIX}_extra_env \
 	            --use-conda --conda-create-envs-only -c 1 -p
 	```
-5) The [cellranger_arc](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc), [MACS2](https://github.com/macs3-project/MACS/wiki/Install-macs2) and corresponding genome reference, such as [GRCh38](https://cf.10xgenomics.com/supp/cell-arc/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz), must be installed and downloaded prior to a full run. You will need to specify their PATHS in the config.yaml file.  
+5) Before starting a run with FASTQ files, ensure that [Cell Ranger ARC](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc) and corresponding genome reference (e.g., [GRCh38](https://cf.10xgenomics.com/supp/cell-arc/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz)) are installed and downloaded. You will need to specify their PATHs in the config.yaml file. If you are starting with existing Cell Ranger ARC outputs, these steps can be skipped.
 
 6) Run on HPCs
-	You can also submit this pipeline to clusters with the template ./workflow/sbatch_Snakefile_template.sh. This template is for SLURM, however, it could be modified to different resource management systems. More details about cluster configuration can be found at [here](https://snakemake.readthedocs.io/en/stable/executing/cluster.html).
+	You can submit this pipeline to clusters with the [template](./workflow/sbatch_Snakefile_template.sh). While this template is configured for SLURM, it can be adapted for other resource management systems. For More details about cluster configuration, refer to the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executing/cluster.html).
 
 	```bash
 	## Test run by SLURM submission, need to modify the PATHs accord your own real dataset
 	$ sbatch ./workflow/sbatch_Snakefile_template.sh
 	```
+
+	
+## Trouble Shooting
+For troubleshooting issues related to pipeline installation and execution, please refer to [this document](./assets/Trouble_Shooting.md). This document will be continuously updated to address errors reported by users.

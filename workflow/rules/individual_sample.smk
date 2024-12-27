@@ -22,7 +22,7 @@ rule initializaion_of_individual_sample:
         "extra_env/R_pkgs.yaml"
     shell:
         "(mkdir -p individual_samples/{wildcards.sample} && "
-        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/initializaion_of_individual_sample.R "
+        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/initialization_of_individual_sample.R "
         "  --sample_id {wildcards.sample} --feature_barcode_matrix {input.fbm} "
         "  --per_barcode_metrics {input.pbm}  --atac_file {input.atac} "
         "  --macs_dir {params.macs_dir}/bin/macs2 "

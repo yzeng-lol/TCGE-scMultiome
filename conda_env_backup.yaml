@@ -1,0 +1,7 @@
+name: iSHARC
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - snakemake = 7.25.0
+  - macs2 = 2.2.9.1

@@ -324,6 +324,7 @@ if(TRUE){
 
     p1 <- dotplot(compKEGG, showCategory = 2, title = "KEGG pathway enrichment") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
 
+
      ## GO enrichment
     compGO <- compareCluster(geneCluster   = deg_list ,
                              fun           = "enrichGO",

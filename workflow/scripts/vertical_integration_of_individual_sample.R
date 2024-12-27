@@ -53,11 +53,11 @@ out_dir <- paste0(getwd(), "/individual_samples/", sample_id, "/") ## with forwa
 ### loading required packages
 #############################
 {
-suppressMessages(library(Seurat))          ## v4.1.1
-suppressMessages(library(Signac))          ## v1.2.1
+suppressMessages(library(Seurat))
+suppressMessages(library(Signac))
 suppressMessages(library(dplyr))
 suppressMessages(library(ggplot2))
-suppressMessages(library(plotly))  ## for sankey plot
+suppressMessages(library(plotly))          ## for sankey plot
 suppressMessages(library(tidyr))
 
 }
@@ -170,7 +170,7 @@ if(regress_cell_cycle)
                   assay = 'RNA',
                   new.assay.name = 'SCT',
                   vars.to.regress = c('pct_MT','S.Score', 'G2M.Score'),
-                  #vst.flavor = "v2", verbose = FALSE
+                  vst.flavor = "v2", verbose = FALSE
                 )
 } else {
   scMultiome <- SCTransform(
@@ -178,7 +178,7 @@ if(regress_cell_cycle)
                   assay = 'RNA',
                   new.assay.name = 'SCT',
                   vars.to.regress = c('pct_MT'),
-                  #vst.flavor = "v2", verbose = FALSE
+                  vst.flavor = "v2", verbose = FALSE
                 )
 }
 

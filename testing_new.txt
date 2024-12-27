@@ -1,0 +1,372 @@
+
+!! conda and mamba versions within the iSHARC are differet from base !!!
+
+
+##################
+## conda upgrading
+##################
+
+base env:
+
+mamba 0.15.3
+conda 4.11.0
+
+## unable to update base conda
+
+issue: Solving environment: failed with repodata from current_repodata.json
+conda update -n base -c defaults conda
+https://community.anaconda.cloud/t/do-i-need-to-update-conda/54664?replies_to_post_number=3
+
+
+#############
+## to-do
+#############
+
+* add argparse and fine-tune the QC filter set up
+* to fine-tune the parameters setting
+* samples merge and integration with batch effect correction using harmony
+  https://hbctraining.github.io/scRNA-seq_online/lessons/06a_integration_harmony.html
+  could try both ways in the mannual
+
+
+### potential Error
+Error in ValidateCellGroups(object = object, cells.1 = cells.1, cells.2 = cells.2,  :
+  Cell group 1 has fewer than 3 cells
+Calls: FindMarkers ... FindMarkers -> FindMarkers.default -> ValidateCellGroups
+
+## which might cause by the some cell names are the same with clusters names (like, 1, 2 ..)
+
+
+#####################
+###  R_pkgs.yaml  ###
+#####################
+
+## adding package to exsitng env
+if (TRUE){
+conda activate /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/cd362880573b12875d1d901c24a999c8_
+
+## packages to be added tp yaml file later on
+
+conda install bioconda::bioconductor-glmgampoi=1.14.0       ## for faster SCT v2 normalization
+library("glmGamPoi")
+packageVersion("glmGamPoi")   (1.14.0)
+
+
+##############
+## for copykat
+conda install conda-forge::r-paralleldist=0.2.6
+conda install conda-forge::r-mixtools=2.0.0
+conda install conda-forge::r-mcmcpack=1.7.1
+
+## conda install r::r-dlm     ## need to install from local
+library(dlm)
+
+library(parallelDist)
+library(mixtools)
+library("MCMCpack")
+
+packageVersion("parallelDist")    #0.2.6
+packageVersion("mixtools")        #2.0.0
+packageVersion("MCMCpack")        #1.7.1
+
+conda install -c r r-dlm                        ## required from copykat   ## installed from local
+conda install -c conda-forge r-paralleldist     ## required from copykat
+conda install -c conda-forge r-mcmcpack         ## required from copykat
+
+
+## export new yaml
+conda env export  | head           ## show the channels
+conda env export                   ## all pkgs with version number as well
+conda env export --from-history    ## show specified pkgs by developer
+
+### Pando
+dependencies ‘motifmatchr’, ‘glmnetUtils’, ‘bayestestR’, ‘ggpointdensity’, ‘pals’, ‘grr’ are not available for package ‘Pando’
+
+conda install bioconda::bioconductor-motifmatchr=1.24.0
+conda install conda-forge::r-glmnetutils=1.1.9
+conda install conda-forge::r-bayestestr=0.15.0
+conda install conda-forge::r-ggpointdensity=0.1
+conda install conda-forge::r-pals=1.9
+conda install conda-forge::r-grr=0.9.5
+conda install bioconda::bioconductor-sparsematrixstats=1.12.0
+
+conda install bioconda::bioconductor-org.hs.eg.db=3.18.0
+conda install bioconda::bioconductor-limma=3.58.1
+
+}
+
+
+## intall local packages from dependences
+R
+pipe_dir="/cluster/home/yzeng/snakemake/iSHARC"
+if(!require("Pando"))  devtools::load_all(paste0(pipe_dir, "/workflow/dependencies/Pando-1.0.0"))
+ℹ Loading Pando
+ℹ The packages `tidyverse`, `glmnetUtils`, `bayestestR`, `xgboost`, `brms`, `ggpointdensity`, `ggraph`, `tidygraph`, and `pals` are required.
+
+###############################
+##### test run on H4H  #######
+###############################
+
+#################################################
+## testing on login node with internet connection
+cd /cluster/home/yzeng/snakemake/iSHARC
+
+conda activate iSHARC
+
+## generate the DGA plots with dot -Tsvg
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_template.yaml \
+          -p --dag | dot -Tpng > /cluster/home/yzeng/snakemake/iSHARC/test/Tempate_DAG.png
+
+## testing on login node for env installations only
+## using conda-prefix specify additional envs parent folder, the names in the YAML files will be hash code !!!
+## Conda can no longer find your environment with the --name flag. You’ll generally need to pass the --prefix flag along with the environment’s full path to find the environment.
+
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_template.yaml \
+          --conda-prefix ${CONDA_PREFIX}_extra_env \
+          --use-conda --conda-create-envs-only  -c 1 -pn
+
+
+
+## testing on login node for template
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_template.yaml \
+          --conda-prefix ${CONDA_PREFIX}_extra_env \
+          --use-conda --keep-going  -c 1 -pn
+
+#################################
+## testing with interactive node
+cd /cluster/projects/tcge/scMultiome/iSHARC_test
+conda activate iSHARC
+
+
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
+          --unlock
+
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
+          -p --dag | dot -Tpng > /cluster/home/yzeng/snakemake/iSHARC/test/Real_DAG.png
+
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
+	        --conda-prefix ${CONDA_PREFIX}_extra_env \
+          --use-conda --keep-going  -c 1 -pn
+
+## for BRCA testing
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/projects/tcge/scMultiome/processed_data/config_TCGE-scMOS-BRCA.yaml \
+	        --conda-prefix ${CONDA_PREFIX}_extra_env \
+          --use-conda --keep-going -c 1 -pn
+
+
+####
+sbatch /cluster/home/yzeng/snakemake/iSHARC/workflow/sbatch_Snakefile_template.sh
+
+
+or
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
+          --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
+          --cluster "sbatch -p himem -c 12 --mem=60G -J iSHARC_test -o iSHARC_test.std -e iSHARC_test.err" \
+          --latency-wait 60 --jobs 2 -p
+
+## using veryhimem for large dataset integration
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_real.yaml \
+          --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
+          --cluster "sbatch -p veryhimem -c 12 --mem=600G -J iSHARC_test -o iSHARC_test.std -e iSHARC_test.err" \
+          --latency-wait 60 --jobs 5 -p
+
+#######################
+## demo_3sample testing
+
+cd /cluster/projects/tcge/scMultiome/iSHARC_demo_samples
+conda activate iSHARC
+
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_demo_samples.yaml \
+          --unlock
+
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_demo_samples.yaml \
+          -p --dag | dot -Tpng > /cluster/home/yzeng/snakemake/iSHARC/test/Demo_samples_DAG.png
+
+## dry run
+snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
+          --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_demo_samples.yaml \
+          --conda-prefix ${CONDA_PREFIX}_extra_env \
+          --use-conda --keep-going  -c 1 -pn
+
+sbatch /cluster/home/yzeng/snakemake/iSHARC/test/sbatch_Snakefile_demo_samples.sh
+
+
+########
+back up
+## dependencies for seurat_path
+
+############################
+############################
+## R scripts testing
+########################
+#########################
+
+
+###############################
+### for testing and fine-tuning: initialization_of_individual_sample
+###############################
+if(FALSE){
+#########
+
+## testing parameters parsing
+# cd /cluster/home/yzeng/snakemake/iSHARC/workflow/scripts
+# conda activate  /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/cd362880573b12875d1d901c24a999c8_    ## new
+# Rscript --vanilla initialization_of_individual_sample.R
+
+## testing code on H4H computing node
+# cd  /cluster/projects/tcge/scMultiome/iSHARC_/
+# conda activate  /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/cd362880573b12875d1d901c24a999c8_    ## new
+
+## testig interactively
+## R
+sample_id   = "Lung"
+fbm_file = "/cluster/projects/tcge/scMultiome/iSHARC_test/arc_count/Lung/outs/filtered_feature_bc_matrix.h5"
+pbm_file = "/cluster/projects/tcge/scMultiome/iSHARC_test/arc_count/Lung/outs/per_barcode_metrics.csv"
+atac_file   = "/cluster/projects/tcge/scMultiome/iSHARC_test/arc_count/Lung/outs/atac_fragments.tsv.gz"
+macs2_dir   = "/cluster/home/yzeng/miniconda3/envs/iSHARC/bin/macs2"
+pipe_dir = "/cluster/home/yzeng/snakemake/iSHARC"
+
+out_dir <- paste0(getwd(), "/individual_samples/", sample_id, "/") ## with forward slash at the end
+
+}
+
+
+###############################
+### for testing and fine-tuning: vertical_integration_of_individual_sample
+###############################
+if(FALSE){
+#########
+
+## testing code on H4H computing node
+# cd  /cluster/projects/tcge/scMultiome/iSHARC_demo_samples
+# conda activate  /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/cd362880573b12875d1d901c24a999c8_    ## new
+# Rscript --vanilla /cluster/home/yzeng/snakemake/iSHARC/workflow/scripts/vertical_integration_of_individual_sample.R --sample_id Lung --initial_seurat_object /cluster/projects/tcge/scMultiome/iSHARC_test/individual_samples/Lung/Lung_initial_seurat_object.RDS --second_round_filter  TRUE --regress_cell_cycle   TRUE
+
+## testing interactively on server
+## R
+sample_id   = "Met_lung"
+iso_file = "/cluster/projects/tcge/scMultiome/iSHARC_demo_samples/individual_samples/Met_lung/Met_lung_initial_seurat_object.RDS"
+second_round_filter = TRUE
+regress_cell_cycle = TRUE
+out_dir <- paste0(getwd(), "/individual_samples/", sample_id, "/") ## with forward slash at the end
+
+
+
+###############################
+### for testing and fine-tuning for extented_analyses_of_indiviudal_sample
+###############################
+if(FALSE){
+#########
+
+## testing code on H4H computing node
+# cd  /cluster/projects/tcge/scMultiome/iSHARC_demo_samples
+# conda activate  /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/ebcd8f410d62ed43e71d1cebab0b3296_    ## new
+# Rscript --vanilla /cluster/home/yzeng/snakemake/iSHARC/workflow/scripts/extended_analyses_individual_sample.R --sample_id Lung --initial_seurat_object /cluster/projects/tcge/scMultiome/iSHARC_test/individual_samples/Lung/Lung_initial_seurat_object.RDS --second_round_filter  TRUE --regress_cell_cycle   TRUE
+
+## testing interactively on server
+## R
+sample_id   = "Met_lung"
+vio_file = "/cluster/projects/tcge/scMultiome/iSHARC_demo_3samples/individual_samples/Met_lung/Met_lung_vertically_integrated_seurat_object.RDS"
+pipe_dir = "/cluster/home/yzeng/snakemake/iSHARC"
+
+out_dir <- paste0(getwd(), "/individual_samples/", sample_id, "/") ## with forward slash at the end
+
+###########################
+## testing locally with RDS
+rm(list = ls())
+setwd("/Users/yong/Library/CloudStorage/OneDrive-UHN/Projects/snakemake/iSHARC_test/individual_samples")
+sample_id   = "Lung"
+iso_file = "Lung_initial_seurat_object.RDS"
+second_round_filter = TRUE
+regress_cell_cycle = TRUE
+out_dir <- paste0(getwd(), "/individual_samples/", sample_id, "/") ## with forward slash at the end
+
+}
+
+
+
+
+
+###########################
+## testing locally with RDS
+rm(list = ls())
+setwd("/Users/yong/Library/CloudStorage/OneDrive-UHN/Projects/snakemake/iSHARC_test/individual_samples")
+sample_id   = "Lung"
+iso_file = "Lung_initial_seurat_object.RDS"
+second_round_filter = TRUE
+regress_cell_cycle = TRUE
+out_dir <- paste0(getwd(), "/individual_samples/", sample_id, "/") ## with forward slash at the end
+
+}
+
+
+###############################
+### for testing and fine-tuning:  horizontal_integration_of_atac_across_multiple_sample
+###############################
+if(FALSE){
+#########
+## on H4H
+# cd  /cluster/projects/tcge/scMultiome/processed_data/TCGE-scMOS-PTLD
+# conda activate  /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/ebcd8f410d62ed43e71d1cebab0b3296_    ## new
+
+#R
+rm(list = ls())
+setwd("/cluster/projects/tcge/scMultiome/processed_data/TCGE-scMOS-PTLD")
+out_dir = paste0(getwd(), "/integration")         ## no forward slash at the end!!
+
+sample_list <- read.table("/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PTLD/samples_integrate_RLN.txt", header = T)
+sample_ids <- sample_list$sample_id
+
+pipe_dir = "/cluster/home/yzeng/snakemake/iSHARC"
+
+####################################
+## testing locally with multiple RDS
+rm(list = ls())
+setwd("/Users/yong/OneDrive - UHN/Projects/snakemake/iSHARC_test/PRCA")
+
+sample_list <- read.table("sample_integrate.txt", header = T)
+sample_ids <- sample_list$sample_id
+
+out_dir <- "./integration"
+pipe_dir  = "/Users/yong/OneDrive - UHN/Projects/snakemake/iSHARC"
+
+}
+
+
+###############################
+### for testing and fine-tuning: vertical_integration_of_multiple_samples
+###############################
+if(FALSE){
+#########
+## on H4H
+# cd  /cluster/projects/tcge/scMultiome/iSHARC_test/main_seurat
+# conda activate  /cluster/home/yzeng/miniconda3/envs/iSHARC_extra_env/ebcd8f410d62ed43e71d1cebab0b3296_    ## new
+#R
+
+rm(list = ls())
+setwd("/cluster/projects/tcge/scMultiome/processed_data/TCGE-scMOS-PTLD/integration")
+
+integr_meth  = harmony
+out_dir = paste0(getwd(), "/harmony")
+
+####################################
+## testing locally with multiple RDS
+rm(list = ls())
+setwd("/Users/yong/OneDrive - UHN/Projects/snakemake/iSHARC_test/PRCA/integration")
+
+out_dir = getwd()
+integr_meth  = "harmony"
+
+
+}

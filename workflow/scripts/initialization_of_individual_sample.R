@@ -56,8 +56,8 @@ out_dir <- paste0(getwd(), "/individual_samples/", sample_id, "/") ## with forwa
 #############################
 {
 suppressMessages(library(hdf5r))           ## to read HDF5 files
-suppressMessages(library(Seurat))          ## v4.1.1
-suppressMessages(library(Signac))          ## v1.2.1
+suppressMessages(library(Seurat))
+suppressMessages(library(Signac))         
 suppressMessages(library(ggplot2))
 suppressMessages(library(EnsDb.Hsapiens.v86))
 }

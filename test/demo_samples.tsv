@@ -1,0 +1,7 @@
+sample_id	sample_seq_id	gex_seq_path	atac_seq_path	arc_outs_path
+Met_Brain	137699_Brain	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/GEX	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/ATAC	/cluster/projects/tcge/scMultiome/processed_data/TCGE-scMOS-PRCA/arc_count/137699_Brain/outs
+Met_liver	179580_liver	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/GEX	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/ATAC	/cluster/projects/tcge/scMultiome/processed_data/TCGE-scMOS-PRCA/arc_count/179580_liver/outs
+Met_lung	179647_lung	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/GEX	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/ATAC	/cluster/projects/tcge/scMultiome/processed_data/TCGE-scMOS-PRCA/arc_count/179647_lung/outs
+Met_lymph_node	180123_Lymph_node	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/GEX	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/ATAC
+Met_vertebra	179615_vertebra	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/GEX	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/ATAC
+Met_adrenal_gland	179634_adrenal_gland	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/GEX	/cluster/projects/tcge/scMultiome/raw_data/TCGE-scMOS-PRCA/ATAC

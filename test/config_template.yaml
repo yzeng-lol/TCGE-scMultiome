@@ -13,7 +13,8 @@ arc_perf: True      ## starting from the FASTQ files; arc_dir and arc_ref are re
 ## arc_perf: True    ## starting from provided cellranger_arc outputs; arc_dir and arc_ref could be NA
 
 ## cellranger will not be installed by the iSHARC
-## point to yourself installation path and reference(s) path
+## need to point to self-installed path and reference(s) path if you start with FASTQ
+## or you can leave it as empty
 arc_dir: /cluster/tools/software/centos7/cellranger-arc/2.0.2
 arc_ref: /cluster/tools/data/commondata/cellranger/refdata-cellranger-arc-GRCh38-2020-A-2.0.0
 
