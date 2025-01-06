@@ -1,0 +1,2 @@
+sample_id	sample_seq_id	gex_seq_path	atac_seq_path	arc_outs_path
+lymphoma_14k	lymphoma_14k	NA	NA	/cluster/projects/tcge/scMultiome/lymphoma_14k/dowloaded

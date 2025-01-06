@@ -1,0 +1,35 @@
+### !! Replce the PATHs accordingly !!
+### !! Setup all other parameters accordingly !!
+
+##########################################
+### PATH for pipeline and working diretor
+### for enclosed packages failed to be autimatically installed by conda,
+pipe_dir: /cluster/home/yzeng/snakemake/iSHARC                  # Full PATH to the iSHARC package
+work_dir: /cluster/projects/tcge/scMultiome/lymphoma_14k             # for 3 samples integration demostration
+
+#############################################################
+## whether the cellranger_arc performed or not
+arc_perf: TRUE      ## starting from the FASTQ files; arc_dir and arc_ref are requied as reference below
+## arc_perf: True    ## starting from provided cellranger_arc outputs; arc_dir and arc_ref could be NA
+
+## cellranger will not be installed by the iSHARC
+## point to yourself installation path and reference(s) path
+arc_dir: NA
+arc_ref: NA
+
+##################################
+### Samples Sequencing information
+### Need to spcify your own sample_template.tsv and sample_library.csv files accordingly!!
+### Templates can be found in ./iSHARC/test
+samples: /cluster/home/yzeng/snakemake/iSHARC/test/lymphoma_14k.tsv
+
+## whether to integrate samples
+integration: FALSE       ## True or False
+samples_integr: NA ## all samples with group info to be integrated
+
+
+#######################
+### analyese parameters
+#######################
+second_round_filter: TRUE    ## whether to perform second round cell filtering based on seleted QC metircs' MADs and suggested cutoffs
+regress_cell_cycle: TRUE     ## whether to regress out the effects of cell cycyle for RNA assays
