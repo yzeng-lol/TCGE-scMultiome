@@ -1,13 +1,12 @@
 ################################################################################
 ##  vertical_integration_of_multiple_samples.R is a function for vertical
 ##  integration of horizontally integrated RNA and ATAC across multiple samples, and the
-##  analyses includes:
+##  analyses includes :
 ##      * clustering of horizontally integrated RNA and ATAC, respectively
 ##      * vertically integrated RNA and ATAC
-##      * visualization pf integrated results 
-## Contact : Yong Zeng <yong.zeng@uhn.ca>
+##      * visualization of integrated results
 ##
-## Copyright: ...
+## Contact : Yong Zeng <yong.zeng@uhn.ca>
 ################################################################################
 
 

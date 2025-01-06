@@ -48,15 +48,15 @@ library(clusterProfiler)
 ## QC metrics and filtering
 ### Selected Percentiles for QC metrics
 * nCount_RNA: Number of transcripts detected per cell
-* percent.mt: Percentage of reads originating from the mitochondrial genes
+* pct_MT: Percentage of reads originating from the mitochondrial genes
 * nCount_ATAC: The number of unique nuclear fragments
-* TSS.enrichment: The ratio of fragments centered at the TSS to fragments in TSS-flanking regions
-* nucleosome_signal: Approximate ratio of mononucleosomal to nucleosome-free fragments
+* TSS_Enrichment: The ratio of fragments centered at the TSS to fragments in TSS-flanking regions
+* Nucleosome_Signal: Approximate ratio of mononucleosomal to nucleosome-free fragments
 
 ```{r echo = FALSE}
 ## display selected metrics
 
-qc_df <- data.matrix(scMultiome [[c("nCount_RNA","percent.mt", "nCount_ATAC", "TSS.enrichment", "nucleosome_signal")]])
+qc_df <- data.matrix(scMultiome [[c("nCount_RNA", "pct_MT", "nCount_ATAC", "TSS_Enrichment", "Nucleosome_Signal")]])
 probs_s <- c(0, 0.025, 0.25, 0.50, 0.75, 0.975, 1)
 qc_percentiles <- apply(qc_df, 2, function(x) quantile(x, probs = probs_s, na.rm = TRUE))
 
@@ -118,7 +118,6 @@ cc_cnt <- table(scMultiome$Phase)
 cc_pct <- paste(round(100 * cc_cnt/sum(cc_cnt), 2), "%", sep="")
 cc_group <- factor(names(cc_cnt), levels = c("G1", "S", "G2M", "Undecided"))
 
-
 dat <- data.frame(cc_cnt, cc_pct, cc_group)
 
 p1 <- ggplot(dat, aes(y = cc_cnt, x = cc_group, fill = cc_group)) + geom_bar(stat='identity')
@@ -126,7 +125,6 @@ p1 <- p1 + geom_text(aes(label = cc_cnt), size = 5, vjust =  1.5)
 p1 <- p1 + geom_text(aes(label = cc_pct), size = 5, vjust = -0.2)
 p1 <- p1 + labs(y = "Number of cells", x = "Cell cycle phases")
 p1 <- p1 + theme_classic() +   theme(legend.position = "none")
-
 
 ## PCA plots before and after regressing out the cell cycle effects
 ## cell cycle genes

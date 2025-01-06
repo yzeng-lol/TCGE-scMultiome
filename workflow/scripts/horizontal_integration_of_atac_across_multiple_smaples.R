@@ -6,8 +6,6 @@
 ##      * integrating with Seurat anchor strategy
 ##
 ## Contact : Yong Zeng <yong.zeng@uhn.ca>
-##
-## Copyright: ...
 ################################################################################
 
 

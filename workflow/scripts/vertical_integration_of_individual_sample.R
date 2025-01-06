@@ -1,16 +1,14 @@
 ################################################################################
 ##  vertical_integration_of_individual_sample.R is a function for vertical
 ##  integration of matched RNA and ATAC for each individual sample, and the
-##  analyses includes:
-##      * Second found QC filtering as customized
+##  analyses include :
+##      * Second found QC filtering (optional)
 ##      * cell cycle correction for RNA (optional)
-##      * normalization and dimetionalities redution
+##      * normalization and dimensionalities reduction
 ##      * integration of RNA and ATAC using WNN
-##      * clustering using the integrated or sparated modalites
+##      * clustering using the integrated or separated modalities.
 ##
 ## Contact : Yong Zeng <yong.zeng@uhn.ca>
-##
-## Copyright: ...
 ################################################################################
 
 

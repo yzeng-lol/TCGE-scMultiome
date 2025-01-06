@@ -6,8 +6,6 @@
 ##      * QC metrics for RNA and ATAC
 ##
 ## Contact : Yong Zeng <yong.zeng@uhn.ca>
-##
-## Copyright: ...
 ################################################################################
 
 
@@ -57,7 +55,7 @@ out_dir <- paste0(getwd(), "/individual_samples/", sample_id, "/") ## with forwa
 {
 suppressMessages(library(hdf5r))           ## to read HDF5 files
 suppressMessages(library(Seurat))
-suppressMessages(library(Signac))         
+suppressMessages(library(Signac))
 suppressMessages(library(ggplot2))
 suppressMessages(library(EnsDb.Hsapiens.v86))
 }

@@ -49,11 +49,32 @@ This schematic diagram shows you how pipeline will be working:
 		    --conda-prefix ${CONDA_PREFIX}_extra_env \
 	            --use-conda --conda-create-envs-only -c 1 -p
 	```
+
+	> **IMPORTANT**: The required version of the Matrix package conflicts with TFBSTools, leading to the error: "object 'R_sparse_marginsum' not found". To resolve this issue for now:
+
+	 Step 1. Activate the extra environment you installed earlier.
+		```bash
+		$ extra_env_path=${CONDA_PREFIX}_extra_env
+		$ conda deactivate                          ## deactivate iSHARC   
+		$ conda activate  ${extra_env_path}/*_      ## activate the extra env with hashed name
+		$ R   
+		```
+
+		Step 2. Force a reinstallation of TFBSTools from the source in R.
+		```r
+		> if (!require("BiocManager", quietly = TRUE))
+	     install.packages("BiocManager")
+
+  	> BiocManager::install("TFBSTools", type = "source", force = TRUE)
+		``` 
+
 5) Test run
-	To perform a test run using the demo dataset, refer to the configuration and sample information templates and introductions provided within the [test](./test/) folder.
+
+	To perform a test run using the demo datasets, refer to the configuration and sample information templates and introductions provided within the [test](./test/) folder.
 
 
 6) Run on HPCs
+
 	You can also submit this pipeline to clusters with the [template](./workflow/sbatch_Snakefile_template.sh). While this template is configured for SLURM, it can be adapted for other resource management systems. For More details about cluster configuration, refer to the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executing/cluster.html).
 
 	```bash

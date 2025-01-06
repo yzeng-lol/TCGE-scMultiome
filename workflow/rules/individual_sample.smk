@@ -85,7 +85,7 @@ rule extended_analyses_of_individual_sample:
         "extra_env/R_pkgs.yaml"
     shell:
         "(mkdir -p individual_samples/{wildcards.sample} && "
-        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/extented_analyses_of_individual_sample.R "
+        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/extended_analyses_of_individual_sample.R "
         "  --sample_id {wildcards.sample}  "
         "  --vertically_integrated_seurat_object  {input} "
         "  --pipe_dir {params.pipe_dir}) 2> {log}"

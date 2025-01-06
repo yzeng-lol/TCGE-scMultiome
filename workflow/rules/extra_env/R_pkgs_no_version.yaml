@@ -3,7 +3,6 @@ channels:
   - conda-forge                         ## conda config --set channel_priority strict: priority ranked from top to the bottom
   - bioconda
 dependencies:
-  - r-base<4.3.1
   - r-argparse                ## R arguments parser, data manipulation and plotting
   - r-devtools
   - r-rmarkdown
@@ -20,10 +19,9 @@ dependencies:
   - r-rlang
   - r-future                      ## for paralleling
   - r-doparallel
-  - r-qlcmatrix                         ## for LinkPeaks
   - r-matrix<1.6.2                      ## matching seuratobject version
-  - r-seuratobject<4.1.4                      ## ensure < 5.0.0 for Pando
-  - r-seurat<4.4.0                       ## single cell processing
+  - r-seuratobject<5.0.0                      ## ensure < 5.0.0 for Pando
+  - r-seurat<5.0.0                       ## single cell processing
   - r-signac<1.12.0                      ## analysis scATAC-seq data
   - r-harmony                      ## integration of single cell datasets
   - r-hdf5r
@@ -40,7 +38,7 @@ dependencies:
   - bioconductor-singler           ## auto annotation by reference
   - bioconductor-celldex          ## reference database
   - bioconductor-iranges
-  #- bioconductor-tfbstools              ## will cause Matirx conflicts, installed from lo
+  - bioconductor-tfbstools
   - bioconductor-jaspar2020
   - bioconductor-motifmatchr            ## for pnado
   - bioconductor-sparsematrixstats      ## for pnado

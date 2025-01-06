@@ -24,7 +24,7 @@ arc_ref: /cluster/tools/data/commondata/cellranger/refdata-cellranger-arc-GRCh38
 samples: /cluster/home/yzeng/snakemake/iSHARC/test/demo_samples.tsv
 
 ## whether to integrate samples
-integration: FALSE       ## True or False
+integration: TRUE       ## True or False
 samples_integr: /cluster/home/yzeng/snakemake/iSHARC/test/demo_samples_integration.tsv  ## all samples with group info to be integrated
 
 

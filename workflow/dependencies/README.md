@@ -6,7 +6,7 @@ The following packages, which are unavailable or outdated in Conda, were cloned 
 1. [KEGG.db](https://github.com/YuLab-SMU/createKEGGdb/tree/master): Required for running clusterProfiler in offline mode without internet access.
 2. [copyKAT](https://github.com/navinlabcode/copykat): Used to distinguish cancer cells from non-cancer cell types.
 3. [dlm](https://cran.r-project.org/web/packages/dlm/index.html): A dependency required for copyKAT.
-4. [Pando](https://github.com/quadbio/Pando): Used for gene regulatory network (GRN) analysis.
+4. [Pando](https://github.com/quadbio/Pando): Used for gene regulatory network (GRN) analysis. Note, the SeuratObject<5.0.0 and Matrix < 1.6.2 are required for compatible Seurat (v4) and Pando. 
 
 
 ## Reference datasets

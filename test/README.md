@@ -9,8 +9,7 @@ Before starting a run with FASTQ files, ensure that [Cell Ranger ARC](https://su
 |	sample_id   |  sample_seq_id	 |  gex_seq_path |  atac_seq_path | arc_outs_path  |
 |-------------|------------------|---------------|----------------|----------------|
 |  Sample1	  |   Sample1_seq    | ./iSHARC/test/dummy_data/Sample1_seq/GEX | ./iSHARC/test/dummy_data/Sample1_seq/ATAC	|    iSHARC/test/dummy_data/Sample1_arc_outs |                      |
-|  Sample2	  |   Sample1_seq    | ./iSHARC/test/dummy_data/Sample1_seq/GEX | ./iSHARC/test/dummy_data/Sample1_seq/ATAC |
-iSHARC/test/dummy_data/Sample1_arc_outs |  
+|  Sample2	  |   Sample1_seq    | ./iSHARC/test/dummy_data/Sample1_seq/GEX | ./iSHARC/test/dummy_data/Sample1_seq/ATAC |    iSHARC/test/dummy_data/Sample1_arc_outs |  
 
 
 3) The samples aggregation template, which can be different from the sample seq information table.
@@ -28,3 +27,5 @@ A configuration YAML file is required to specify the paths to all input files an
 ## Test datasets
 
 `dummy_data/`: Contains data for performing a quick dry run of the pipeline to verify that all configurations are correctly set. It also facilitates generating the DAG for the templates.   
+
+`lymph_node_lymphoma_14k`: The processed outputs for the flash-frozen lymph node with B cell lymphoma using Cell Ranger ARC 2.0.0, are available for download from [10x Genomics datasets](https://www.10xgenomics.com/datasets/fresh-frozen-lymph-node-with-b-cell-lymphoma-14-k-sorted-nuclei-1-standard-2). The lymph_node_lymphoma_14k_atac_fragments.tsv.gz, lymph_node_lymphoma_14k_atac_fragments.tsv.gz.tbi and lymph_node_lymphoma_14k_filtered_feature_bc_matrix.h5 are essential for a  can be for a full test run on an individual sample. 
