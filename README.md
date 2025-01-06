@@ -56,7 +56,7 @@ This schematic diagram shows you how pipeline will be working:
 	```bash
 	$ extra_env_path=${CONDA_PREFIX}_extra_env
 	$ conda deactivate                        
-	$ conda activate  ${extra_env_path}/*_   env with hashed name
+	$ conda activate  ${extra_env_path}/*_
 	$ R   
 	```
 

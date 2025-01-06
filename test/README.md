@@ -2,7 +2,7 @@
 > **IMPORTANT**: READ THROUGH THE GUIDE INFORMATION IN THE TEMPLATES TO MAKE CORRECT MANIFEST TALBES AND CONFIG FILE.
 
 ### Step 1: Prepare Cell Rancer ARC and corresponding reference
-Before starting a run with FASTQ files, ensure that [Cell Ranger ARC](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc) and corresponding genome reference (e.g., [GRCh38](https://cf.10xgenomics.com/supp/cell-arc/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz)) are installed and downloaded. You will need to specify their PATHs in the config.yaml file. If you are starting with existing Cell Ranger ARC outputs, these steps can be skipped.
+1) Before starting a run with FASTQ files, ensure that [Cell Ranger ARC](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc) and corresponding genome reference (e.g., [GRCh38](https://cf.10xgenomics.com/supp/cell-arc/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz)) are installed and downloaded. You will need to specify their PATHs in the config.yaml file. If you are starting with existing Cell Ranger ARC outputs, these steps can be skipped.
 
 2) The template for the sample FASTQ data or Cell Ranger ARC outputs table is provided. Note: Ensure the table `headers` match exactly as specified. The `gex_seq_path` and  `atac_seq_path` are required when staring from FASTQ files, and the `arc_outs_path` is essential when running the pipeline with existing outputs from Cell Ranger ARC.
 
@@ -28,4 +28,4 @@ A configuration YAML file is required to specify the paths to all input files an
 
 `dummy_data/`: Contains data for performing a quick dry run of the pipeline to verify that all configurations are correctly set. It also facilitates generating the DAG for the templates.   
 
-`lymph_node_lymphoma_14k`: The processed outputs for the flash-frozen lymph node with B cell lymphoma using Cell Ranger ARC 2.0.0, are available for download from [10x Genomics datasets](https://www.10xgenomics.com/datasets/fresh-frozen-lymph-node-with-b-cell-lymphoma-14-k-sorted-nuclei-1-standard-2). The lymph_node_lymphoma_14k_atac_fragments.tsv.gz, lymph_node_lymphoma_14k_atac_fragments.tsv.gz.tbi and lymph_node_lymphoma_14k_filtered_feature_bc_matrix.h5 are essential for a  can be for a full test run on an individual sample. 
+`lymph_node_lymphoma_14k`: The processed outputs for the flash-frozen lymph node with B cell lymphoma using Cell Ranger ARC 2.0.0, are available for download from [10x Genomics datasets](https://www.10xgenomics.com/datasets/fresh-frozen-lymph-node-with-b-cell-lymphoma-14-k-sorted-nuclei-1-standard-2). The lymph_node_lymphoma_14k_atac_fragments.tsv.gz, lymph_node_lymphoma_14k_atac_fragments.tsv.gz.tbi and lymph_node_lymphoma_14k_filtered_feature_bc_matrix.h5 are essential for a full test run on an individual sample. 
