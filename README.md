@@ -52,21 +52,19 @@ This schematic diagram shows you how pipeline will be working:
 
 	> **IMPORTANT**: The required version of the Matrix package conflicts with TFBSTools, leading to the error: "object 'R_sparse_marginsum' not found". To resolve this issue for now:
 
-	 Step 1. Activate the extra environment you installed earlier.
-		```bash
-		$ extra_env_path=${CONDA_PREFIX}_extra_env
-		$ conda deactivate                          ## deactivate iSHARC   
-		$ conda activate  ${extra_env_path}/*_      ## activate the extra env with hashed name
-		$ R   
-		```
+	Step 1. Activate the extra environment you installed earlier.
+	```bash
+	$ extra_env_path=${CONDA_PREFIX}_extra_env
+	$ conda deactivate                        
+	$ conda activate  ${extra_env_path}/*_   env with hashed name
+	$ R   
+	```
 
-		Step 2. Force a reinstallation of TFBSTools from the source in R.
-		```r
-		> if (!require("BiocManager", quietly = TRUE))
-	     install.packages("BiocManager")
-
-  	> BiocManager::install("TFBSTools", type = "source", force = TRUE)
-		``` 
+	Step 2. Force a reinstallation of TFBSTools from the source in R.
+	```r
+	> if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+  > BiocManager::install("TFBSTools", type = "source", force = TRUE)
+	``` 
 
 5) Test run
 
