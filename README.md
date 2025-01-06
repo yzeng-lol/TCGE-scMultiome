@@ -60,11 +60,11 @@ This schematic diagram shows you how pipeline will be working:
 	$ R   
 	```
 
-	Step 2. Force a reinstallation of TFBSTools from the source in R.
+	Step 2. Force a reinstallation of TFBSTools from the source within R.
 	```r
 	> if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
-  > BiocManager::install("TFBSTools", type = "source", force = TRUE)
-	``` 
+	> BiocManager::install("TFBSTools", type = "source", force = TRUE)
+	```
 
 5) Test run
 
