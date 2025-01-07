@@ -68,7 +68,7 @@ This schematic diagram shows you how pipeline will be working:
 
 5) Test run
 
-	To perform a test run using the demo datasets, refer to the configuration and sample information templates and introductions provided within the [test](./test/) folder. You can preview the demo HTML reports for the primary results for an [individual sample](https://htmlpreview.github.io/?) and [integrated multiple samples](https://htmlpreview.github.io/?).
+	To perform a test run using the demo datasets, refer to the configuration and sample information templates and introductions provided within the [test](./test/) folder. You can preview the demo HTML reports for the primary results for an [individual sample](https://html-preview.github.io/?url=https://github.com/yzeng-lol/iSHARC/blob/main/assets/Met_lung_QC_and_Primary_Results.html) and [integrated multiple samples](https://html-preview.github.io/?url=https://github.com/yzeng-lol/iSHARC/blob/main/assets/Met_lung_QC_and_Primary_Results.html).
 
 6) Run on HPCs
 
