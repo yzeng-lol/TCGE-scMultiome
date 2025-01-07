@@ -143,7 +143,7 @@ copykat_res <- copykat(rawmat = expr_raw, sam.name = sample_id , id.type = "S", 
 idx_s <- match(rownames(scMultiome@meta.data),copykat_res$prediction$cell.names)
 
 ## no
-cell_type <- rep("not.prediced", length(idx_s))    ## there are cells will excluded for copykat prediction
+cell_type <- rep("not.predicted", length(idx_s))    ## there are cells will excluded for copykat prediction
 cell_type[!is.na(idx_s)] <- copykat_res$prediction$copykat.pred[idx_s[!is.na(idx_s)]]
 
 scMultiome[["WNN_clusters_copykat_annot"]] <- cell_type

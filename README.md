@@ -68,8 +68,7 @@ This schematic diagram shows you how pipeline will be working:
 
 5) Test run
 
-	To perform a test run using the demo datasets, refer to the configuration and sample information templates and introductions provided within the [test](./test/) folder.
-
+	To perform a test run using the demo datasets, refer to the configuration and sample information templates and introductions provided within the [test](./test/) folder. You can preview the demo HTML reports for the primary results for an [individual sample](https://htmlpreview.github.io/?) and [integrated multiple samples](https://htmlpreview.github.io/?).
 
 6) Run on HPCs
 

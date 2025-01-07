@@ -42,7 +42,7 @@ rule horizontal_integration_of_atac_across_multiple_samples:
     conda:
         "extra_env/R_pkgs.yaml"
     shell:
-        "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/horizontal_integration_of_rna_across_multiple_samples.R "
+        "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/horizontal_integration_of_atac_across_multiple_samples.R "
         "   --samples_integration {params.integr_list} "
         "   --pipe_dir {params.pipe_dir}) 2> {log}"
 

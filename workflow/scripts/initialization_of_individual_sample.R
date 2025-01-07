@@ -203,10 +203,6 @@ scMultiome[["pctFragments_in_Blacklist"]] <- FractionCountsInRegion(
                                                         regions = blacklist_hg38
                                                       )
 
-saveRDS(scMultiome, file = paste0(out_dir, sample_id, "_initial_seurat_object.RDS"))
-write.csv(scMultiome@meta.data,  file = paste0(out_dir, sample_id, "_initial_meta_data.csv"))
-
-
 ###############################
 #####  QC metrics visualization
 
@@ -230,11 +226,56 @@ qc_df <- data.matrix(scMultiome [[c("nCount_RNA", "pct_MT", "nCount_ATAC", "TSS_
 probs_s <- c(0, 0.025, 0.25, 0.50, 0.75, 0.975, 1)
 qc_percentiles <- apply(qc_df, 2, function(x) quantile(x, probs = probs_s, na.rm = TRUE))
 
-## MADs for identifying outliers
-Upper_3MAD <- apply(qc_df, 2, function(x) median(x, na.rm = TRUE) + 3 * mad(x, na.rm = TRUE))
-Lower_3MAD <- apply(qc_df, 2, function(x) median(x, na.rm = TRUE) - 3 * mad(x, na.rm = TRUE))
-qc_out <- rbind(qc_percentiles, Lower_3MAD, Upper_3MAD)
+upper_3mad <- apply(qc_df, 2, function(x) median(x, na.rm = TRUE) + 3 * mad(x, na.rm = TRUE))
+lower_3mad <- apply(qc_df, 2, function(x) median(x, na.rm = TRUE) - 3 * mad(x, na.rm = TRUE))
+qc_out <- rbind(qc_percentiles, lower_3mad, upper_3mad)
 write.csv(qc_out, file = paste0(out_dir, sample_id, "_QC_metrics_percentiles_and_MADs.csv"))
+
+#######################################
+## assess the automactic second-round QC
+{
+rna_upper <- upper_3mad["nCount_RNA"]
+rna_lower <- lower_3mad["nCount_RNA"]
+atac_uppper <- upper_3mad["nCount_ATAC"]
+atac_lower <- lower_3mad["nCount_ATAC"]
+mt_upper <- min(20, upper_3mad["pct_MT"])
+tss_lower <- max(1, lower_3mad["TSS_Enrichment"])
+ns_uppper <- min(2, upper_3mad["Nucleosome_Signal"])
+
+qc_df <- data.frame(qc_df)   ## convert to data frame
+
+idx_RNA <- qc_df$nCount_RNA > rna_lower &  qc_df$nCount_RNA < rna_upper
+
+idx_ATAC <- qc_df$nCount_ATAC > atac_lower & qc_df$nCount_ATAC < atac_uppper
+
+idx_MT <- qc_df$pct_MT.mt < mt_upper
+
+idx_TSS <- qc_df$TSS_Enrichment > tss_lower
+
+idx_NS <- qc_df$Nucleosome_Signal < ns_uppper
+
+## counting
+cnt_RNA <- sum(idx_RNA & idx_MT, na.rm = T)
+cnt_ATAC <- sum(idx_ATAC & idx_MT & idx_TSS & idx_NS, na.rm = T)
+cnt_both <- sum(idx_RNA & idx_ATAC & idx_MT & idx_TSS & idx_NS, na.rm = T)
+
+cnt_raw <- nrow(qc_df)
+
+cells_2filtered <- data.frame(cnt_raw, cnt_RNA, cnt_ATAC, cnt_both)
+cells_frac <- round(cells_2filtered / nrow(qc_df), 2)
+cells_2filtered  <- rbind(cells_2filtered, cells_frac)
+
+rownames(cells_2filtered) <- c("Number of cells", "Fraction of 1st filtered cells")
+colnames(cells_2filtered) <- c("1st_joint_filtered", "2nd_filtered_by_RNA", "2nd_filtered_by_ATAC",        "2nd_filtered_by_Both")
+
+scMultiome@misc[["second_QC_assessment"]] <- cells_2filtered
+
+# Misc(scMultiome, slot = "second_QC_assessment") <- cells_2filtered  ## list to save as tbl_graph object
+# will be added as a list
+}
+
+saveRDS(scMultiome, file = paste0(out_dir, sample_id, "_initial_seurat_object.RDS"))
+write.csv(scMultiome@meta.data,  file = paste0(out_dir, sample_id, "_initial_meta_data.csv"))
 
 print("The initialization of individual sample has been successfully completed!!")
 }
