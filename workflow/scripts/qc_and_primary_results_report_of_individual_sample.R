@@ -1,10 +1,7 @@
 ################################################################################
-## Generate the HTML report for the QC and primary results per each individually
-## sample
+## Generate the HTML report for QC and primary results of each individual sample
 ##
 ## Contact : Yong Zeng <yong.zeng@uhn.ca>
-##
-## Copyright: ...
 ################################################################################
 
 

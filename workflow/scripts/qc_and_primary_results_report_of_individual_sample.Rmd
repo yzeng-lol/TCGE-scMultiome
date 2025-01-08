@@ -75,10 +75,10 @@ VlnPlot(scMultiome, features = c("nCount_RNA", "pct_MT", "nCount_ATAC", "TSS_Enr
 ```
 
 ### Second-round QC filtering assessment
-The automatic QC metric cutoffs are determined based on the suggested thresholds and the corresponding median ± 3*MAD (Median Absolute Deviation), as outlined below. The subsequent results for the cells in this report depend on whether the second-round QC filtering is enabled in the configuration file.
+The automatic QC metric cutoffs are determined based on the suggested thresholds and the corresponding median ± 3*MAD (Median Absolute Deviation), as outlined below. The table displays the number of cells retained after applying the corresponding QC filters. The subsequent results for the cells in this report depend on whether the second-round QC filtering is enabled in the configuration file.
 
-* nCount_RNA:  [median - 3*MAD, median + 3*MAD]
-* nCount_ATAC: [median - 3*MAD, median + 3*MAD]
+* nCount_RNA:  [max(500, median - 3*MAD),  min(25000, median + 3*MAD)]
+* nCount_ATAC: [max(1000, median - 3*MAD), min(70000, median + 3*MAD)]
 * pct_MT:  < min(20, median + 3*MAD)
 * TSS_Enrichment: > max(1, median - 3*MAD)
 * Nucleosome_Signal: < min(2, median + 3*MAD)

@@ -20,6 +20,7 @@ dependencies:
   - r-rlang
   - r-future                      ## for paralleling
   - r-doparallel
+  - r-qlcmatrix                         ## for LinkPeaks
   - r-matrix<1.6.2                      ## matching seuratobject version
   - r-seuratobject<4.1.4                      ## ensure < 5.0.0 for Pando
   - r-seurat<4.4.0                       ## single cell processing
@@ -39,7 +40,7 @@ dependencies:
   - bioconductor-singler           ## auto annotation by reference
   - bioconductor-celldex          ## reference database
   - bioconductor-iranges
-  - bioconductor-tfbstools
+  #- bioconductor-tfbstools              ## will cause Matirx conflicts, installed from lo
   - bioconductor-jaspar2020
   - bioconductor-motifmatchr            ## for pnado
   - bioconductor-sparsematrixstats      ## for pnado

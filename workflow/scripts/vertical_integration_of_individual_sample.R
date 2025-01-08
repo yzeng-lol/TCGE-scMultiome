@@ -58,6 +58,10 @@ suppressMessages(library(ggplot2))
 suppressMessages(library(plotly))          ## for sankey plot
 suppressMessages(library(tidyr))
 
+## enable the Parallelization with the future packages
+suppressMessages(library(future))
+plan("multicore", workers = 12)
+
 }
 
 ####################################
@@ -77,20 +81,18 @@ upper_3mad <- apply(qc_df, 2, function(x) median(x, na.rm = TRUE) + 3 * mad(x, n
 lower_3mad <- apply(qc_df, 2, function(x) median(x, na.rm = TRUE) - 3 * mad(x, na.rm = TRUE))
 
 ## taking both MADs and preset cutoffs into account
+#rna_upper <- upper_3mad["nCount_RNA"]
+#rna_lower <- lower_3mad["nCount_RNA"]
+#atac_uppper <- upper_3mad["nCount_ATAC"]
+#atac_lower <- lower_3mad["nCount_ATAC"]
 
-## sample vary with the nCount for RNA and ATAC
-# rna_upper <- min(25000, upper_3mad["nCount_RNA"])
-# rna_lower <- max(1000, lower_3mad["nCount_RNA"])
-# atac_uppper <- min(70000, upper_3mad["nCount_ATAC"])
-# atac_lower <- max(5000, lower_3mad["nCount_ATAC"])
-
-rna_upper <- upper_3mad["nCount_RNA"]
-rna_lower <- lower_3mad["nCount_RNA"]
-atac_uppper <- upper_3mad["nCount_ATAC"]
-atac_lower <- lower_3mad["nCount_ATAC"]
-mt_upper <- min(20, upper_3mad["pct_MT"])
+rna_upper <-  min(25000, upper_3mad["nCount_RNA"])
+rna_lower <-  max(500, lower_3mad["nCount_RNA"])     ## ensure at least 500 RNA
+atac_uppper <- min(70000, upper_3mad["nCount_ATAC"])
+atac_lower  <- max(1000, lower_3mad["nCount_ATAC"])   ## ensure at least 1000 ATAC
+mt_upper  <- min(20, upper_3mad["pct_MT"])
 tss_lower <- max(1, lower_3mad["TSS_Enrichment"])
-ns_uppper <- min(2, upper_3mad["Nucleosome_Signal"])
+ns_upper  <- min(2, upper_3mad["Nucleosome_Signal"])
 
 cells_before <- nrow(scMultiome@meta.data)
 ## subsetting the scMultiome project
@@ -102,7 +104,7 @@ scMultiome <- subset(
                          nCount_ATAC > atac_lower &
                          pct_MT < mt_upper &
                          TSS_Enrichment > tss_lower &
-                         Nucleosome_Signal < ns_uppper
+                         Nucleosome_Signal < ns_upper
                  )
 
 ## cells after the second round filtering

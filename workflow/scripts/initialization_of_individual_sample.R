@@ -234,13 +234,15 @@ write.csv(qc_out, file = paste0(out_dir, sample_id, "_QC_metrics_percentiles_and
 #######################################
 ## assess the automactic second-round QC
 {
-rna_upper <- upper_3mad["nCount_RNA"]
-rna_lower <- lower_3mad["nCount_RNA"]
-atac_uppper <- upper_3mad["nCount_ATAC"]
-atac_lower <- lower_3mad["nCount_ATAC"]
-mt_upper <- min(20, upper_3mad["pct_MT"])
+
+## taking both MADs and preset cutoffs into account
+rna_upper <-  min(25000, upper_3mad["nCount_RNA"])
+rna_lower <-  max(500, lower_3mad["nCount_RNA"])     ## ensure at least 500 RNA
+atac_uppper <- min(70000, upper_3mad["nCount_ATAC"])
+atac_lower  <- max(1000, lower_3mad["nCount_ATAC"])   ## ensure at least 1000 ATAC
+mt_upper  <- min(20, upper_3mad["pct_MT"])
 tss_lower <- max(1, lower_3mad["TSS_Enrichment"])
-ns_uppper <- min(2, upper_3mad["Nucleosome_Signal"])
+ns_upper  <- min(2, upper_3mad["Nucleosome_Signal"])
 
 qc_df <- data.frame(qc_df)   ## convert to data frame
 
@@ -248,11 +250,11 @@ idx_RNA <- qc_df$nCount_RNA > rna_lower &  qc_df$nCount_RNA < rna_upper
 
 idx_ATAC <- qc_df$nCount_ATAC > atac_lower & qc_df$nCount_ATAC < atac_uppper
 
-idx_MT <- qc_df$pct_MT.mt < mt_upper
+idx_MT <- qc_df$pct_MT < mt_upper
 
 idx_TSS <- qc_df$TSS_Enrichment > tss_lower
 
-idx_NS <- qc_df$Nucleosome_Signal < ns_uppper
+idx_NS <- qc_df$Nucleosome_Signal < ns_upper
 
 ## counting
 cnt_RNA <- sum(idx_RNA & idx_MT, na.rm = T)
@@ -269,6 +271,8 @@ rownames(cells_2filtered) <- c("Number of cells", "Fraction of 1st filtered cell
 colnames(cells_2filtered) <- c("1st_joint_filtered", "2nd_filtered_by_RNA", "2nd_filtered_by_ATAC",        "2nd_filtered_by_Both")
 
 scMultiome@misc[["second_QC_assessment"]] <- cells_2filtered
+
+cells_2filtered
 
 # Misc(scMultiome, slot = "second_QC_assessment") <- cells_2filtered  ## list to save as tbl_graph object
 # will be added as a list

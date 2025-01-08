@@ -47,6 +47,10 @@ sample_ids <- sample_list$sample_id
   suppressMessages(library(dplyr))
   suppressMessages(library(ggplot2))
   suppressMessages(library(harmony))
+
+  ## enable the Parallelization with the future packages
+  suppressMessages(library(future))
+  plan("multicore", workers = 12)
 }
 
 

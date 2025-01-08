@@ -63,7 +63,10 @@ suppressMessages(library(ggplot2))
 suppressMessages(library(ggraph))
 suppressMessages(library(devtools))
 suppressMessages(library(TFBSTools))
-suppressMessages(library(doParallel))
+
+## enable the Parallelization with the future packages
+suppressMessages(library(future))
+plan("multicore", workers = 12)
 
 
 #########################################
@@ -87,6 +90,9 @@ library(copykat)
 ## require seuratObject < 5.0.0;
 if(!require("Pando"))  install.packages(paste0(pipe_dir, "/workflow/dependencies/Pando_1.0.4.tar.gz"))  ## latest compatible verion
 library(Pando)
+
+suppressMessages(library(doParallel))       ## parallelization for pando
+
 
 ## intall TFBSTools from local instead
 #if(!require("TFBSTools"))  install.packages(paste0(pipe_dir, "/workflow/dependencies/TFBSTools_1.44.0.tar.gz"), INSTALL_opts = '--no-lock')
@@ -494,7 +500,7 @@ data('SCREEN.ccRE.UCSC.hg38')    ## regions are contrained to SCREEN candidate c
 
   ################
   ## infering GRN
-  registerDoParallel(4)
+  registerDoParallel(12)
 
   scMultiome_GRN  <- infer_grn(
     scMultiome_GRN ,
@@ -632,14 +638,14 @@ if(n_fit >= 1) {
 
       ################
       ## infering GRN
-      registerDoParallel(4)
+      registerDoParallel(12)
 
       scMultiome_GRN  <- infer_grn(
         scMultiome_GRN ,
         peak_to_gene_method = 'Signac',
         ## limited to cluster specific DARs as target genes
         genes = rownames(scMultiome@assays$SCT@misc$DEGs[[i]]),  # target genes to consider
-        parallel = F
+        parallel = T
       )
 
       ## summary of inferred GRN

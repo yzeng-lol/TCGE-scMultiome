@@ -32,5 +32,6 @@ samples_integr: /cluster/home/yzeng/snakemake/iSHARC/test/samples_integration_te
 #######################
 ### analyese parameters
 #######################
+threads: 12                  ## number of cores for parellelization, will be scaled download to the availabe cores
 second_round_filter: True    ## whether to perform second round cell filtering based on seleted QC metircs' MADs and suggested cutoffs
 regress_cell_cycle: True     ## whether to regress out the effects of cell cycyle for RNA assays

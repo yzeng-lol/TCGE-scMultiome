@@ -52,6 +52,10 @@ pipe_dir <- args$pipe_dir
   suppressMessages(library(ggplot2))
   suppressMessages(library(harmony))
   suppressMessages(library(IRanges))
+
+  ## enable the Parallelization with the future packages
+  suppressMessages(library(future))
+  plan("multicore", workers = 12)
 }
 
 
@@ -107,6 +111,8 @@ genome_info <- seqinfo(anno_gene)
     peaks_width <- width(peaks_merged)
     peaks_merged <- peaks_merged[peaks_width < 10000 & peaks_width > 20]
     length(peaks_merged)
+
+    print("Common peak set has been created!!")
   }
 
   ################
@@ -178,6 +184,9 @@ genome_info <- seqinfo(anno_gene)
 
     saveRDS(atac_merged, paste0(out_dir, "/ATAC_integrated_by_merging.RDS"))
 
+    print("Multiple samples have been successfully merged!!")
+
+
   }
 
   #####################
@@ -225,14 +234,18 @@ genome_info <- seqinfo(anno_gene)
     ## reference: If NULL (default), all pairwise anchors are found (no reference/s).
     ## Could using the first object as reference to save computational time, but might affect the outcomes as well
 
+
+
     atac_anchors <- FindIntegrationAnchors(
                               object.list = seurat_object_list,
                               #reference = c(1),
                               #anchor.features = atac_features,
                               anchor.features = rownames(rownames(atac_merged)),
                               reduction = "rlsi",
-                              k.filter = 200,    # default 200; How many neighbors (k) to use when filtering anchors
+                              k.filter = NA,    # default 200; How many neighbors (k) to use when filtering anchors; refer to https://github.com/satijalab/seurat/issues/7612
                               dims = 2:50)
+
+
 
     # integrate LSI embeddings
     # https://github.com/satijalab/seurat/issues/6341
@@ -240,7 +253,7 @@ genome_info <- seqinfo(anno_gene)
     atac_anchored <- IntegrateEmbeddings(anchorset = atac_anchors,
                                          reductions = atac_merged[["lsi"]],
                                          new.reduction.name = "lsi_integrated",
-                                         k.weight = 100      # default 100; Number of neighbors to consider when weighting anchors
+                                         k.weight = 50      # default 100; Number of neighbors to consider when weighting anchors
                                          )
 
     # create a new UMAP using the integrated embedings

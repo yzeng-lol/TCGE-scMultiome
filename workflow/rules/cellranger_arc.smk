@@ -34,7 +34,7 @@ rule cellranger_arc_count:
         arc_outs_path = get_arc_outs_path,
         arc_dir = config["arc_dir"],
         arc_ref = config["arc_ref"]
-    threads: 12
+    threads: config["threads"]
     log:
         "logs/{sample}_cellranger_arc_count.log"
     run:

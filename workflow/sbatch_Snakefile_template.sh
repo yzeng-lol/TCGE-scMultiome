@@ -38,7 +38,7 @@ snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
           --cluster "sbatch -p himem -c 12 --mem=60G -J {cluster.jid} -o {cluster.std} -e {cluster.err} -t 5-00:00:00" \
           --latency-wait 60 --jobs 6 -p
 
-## using higher mem for large dataset integration
-# eg: veryhimem -c 12 --mem=600G
+# Using Higher Memory: For large dataset integration, allocate more memory (e.g., --mem=600G).
+# Maximizing Parallelization: Increase the number of threads both in the command-line option (-c) and the configuration file (--threads) to enhance parallel processing efficiency.
 
 conda deactivate

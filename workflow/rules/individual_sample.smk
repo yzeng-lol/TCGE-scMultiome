@@ -49,6 +49,8 @@ rule vertical_integration_of_individual_sample:
         pipe_dir = config["pipe_dir"],
         srf = config["second_round_filter"],
         rcc = config["regress_cell_cycle"]
+    threads:
+        config["threads"]
     log:
         "logs/{sample}_vertical_integration.log"
     conda:
@@ -79,6 +81,8 @@ rule extended_analyses_of_individual_sample:
         mem_mb=60000
     params:
         pipe_dir = config["pipe_dir"]
+    threads:
+        config["threads"]
     log:
         "logs/{sample}_extended_analyses.log"
     conda:
