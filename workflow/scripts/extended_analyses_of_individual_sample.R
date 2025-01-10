@@ -28,6 +28,12 @@ parser$add_argument("-vio", "--vertically_integrated_seurat_object", required=TR
                     help = "the seurat object with vertically integrated ATAC and RNA using WNN")
 parser$add_argument("-pipe", "--pipe_dir", required=TRUE,
                     help = "The PATH to iSHARC pipeline, which local dependences included")
+parser$add_argument("-t", "--threads", type = "integer", default = 12,
+                    help = "Number of cores for the parallelization")
+parser$add_argument("-fgm", "--future_globals_maxSize", type = "integer", default = 12,
+                    help = "Maximum memory in GB for the future parallelization global variables")
+
+
 
 ## assigning passing arguments
 args <- parser$parse_args()
@@ -66,7 +72,8 @@ suppressMessages(library(TFBSTools))
 
 ## enable the Parallelization with the future packages
 suppressMessages(library(future))
-plan("multicore", workers = 12)
+plan("multicore", workers = args$threads)
+options(future.globals.maxSize = args$future_globals_maxSize * 1024^3)
 
 
 #########################################
@@ -500,7 +507,7 @@ data('SCREEN.ccRE.UCSC.hg38')    ## regions are contrained to SCREEN candidate c
 
   ################
   ## infering GRN
-  registerDoParallel(12)
+  registerDoParallel(args$threads)
 
   scMultiome_GRN  <- infer_grn(
     scMultiome_GRN ,
@@ -638,7 +645,7 @@ if(n_fit >= 1) {
 
       ################
       ## infering GRN
-      registerDoParallel(12)
+      registerDoParallel(args$threads)
 
       scMultiome_GRN  <- infer_grn(
         scMultiome_GRN ,

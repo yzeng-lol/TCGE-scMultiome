@@ -23,6 +23,10 @@ parser <- ArgumentParser()
 ## by default ArgumentParser will add an help option
 parser$add_argument("-si", "--samples_integration", required=TRUE,
                     help = "list of sample IDs to be aggregated in TSV format")
+parser$add_argument("-t", "--threads", type = "integer", default = 12,
+                     help = "Number of cores for the parallelization")
+parser$add_argument("-fgm", "--future_globals_maxSize", type = "integer", default = 12,
+                    help = "Maximum memory in GB for the future parallelization global variables")
 
 ## assigning passing arguments
 args <- parser$parse_args()
@@ -50,7 +54,9 @@ sample_ids <- sample_list$sample_id
 
   ## enable the Parallelization with the future packages
   suppressMessages(library(future))
-  plan("multicore", workers = 12)
+  plan("multicore", workers = args$threads)
+  options(future.globals.maxSize = args$future_globals_maxSize * 1024^3)
+
 }
 
 

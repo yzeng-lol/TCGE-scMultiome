@@ -25,6 +25,10 @@ parser$add_argument("-si", "--samples_integration", required=TRUE,
                     help = "list of sample IDs to be aggregated in TSV format")
 parser$add_argument("-pipe", "--pipe_dir", required=TRUE,
                     help = "The PATH to iSHARC pipeline, which local dependences included")
+parser$add_argument("-t", "--threads", type = "integer", default = 12,
+                    help = "Number of cores for the parallelization")
+parser$add_argument("-fgm", "--future_globals_maxSize", type = "integer", default = 12,
+                    help = "Maximum memory in GB for the future parallelization global variables")
 
 ## assigning passing arguments
 args <- parser$parse_args()
@@ -55,7 +59,9 @@ pipe_dir <- args$pipe_dir
 
   ## enable the Parallelization with the future packages
   suppressMessages(library(future))
-  plan("multicore", workers = 12)
+  plan("multicore", workers = args$threads)
+  options(future.globals.maxSize = args$future_globals_maxSize * 1024^3)
+
 }
 
 
@@ -253,7 +259,7 @@ genome_info <- seqinfo(anno_gene)
     atac_anchored <- IntegrateEmbeddings(anchorset = atac_anchors,
                                          reductions = atac_merged[["lsi"]],
                                          new.reduction.name = "lsi_integrated",
-                                         k.weight = 50      # default 100; Number of neighbors to consider when weighting anchors
+                                         k.weight = 10      # default 100; Number of neighbors to consider when weighting anchors
                                          )
 
     # create a new UMAP using the integrated embedings

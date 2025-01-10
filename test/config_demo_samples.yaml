@@ -1,36 +1,61 @@
-### !! Replce the PATHs accordingly !!
+### !! Replace the PATHs accordingly !!
 ### !! Setup all other parameters accordingly !!
 
-##########################################
+#########################################
 ### PATH for pipeline and working diretor
+#########################################
 ### for enclosed packages failed to be autimatically installed by conda,
 pipe_dir: /cluster/home/yzeng/snakemake/iSHARC                  # Full PATH to the iSHARC package
 work_dir: /cluster/projects/tcge/scMultiome/iSHARC_demo_samples             # for 3 samples integration demostration
 
-#############################################################
+##############################################
 ## whether the cellranger_arc performed or not
-arc_perf: FALSE      ## starting from the FASTQ files; arc_dir and arc_ref are requied as reference below
-## arc_perf: True    ## starting from provided cellranger_arc outputs; arc_dir and arc_ref could be NA
+##############################################
+## starting from the FASTQ files; arc_dir and arc_ref are requied as reference below
+arc_perf: FALSE
 
-## cellranger will not be installed by the iSHARC
-## point to yourself installation path and reference(s) path
+## cellranger will not be installed by the iSHARC, need to point to yourself installation path and reference(s) path
 arc_dir: /cluster/tools/software/centos7/cellranger-arc/2.0.2
 arc_ref: /cluster/tools/data/commondata/cellranger/refdata-cellranger-arc-GRCh38-2020-A-2.0.0
 
 ##################################
 ### Samples Sequencing information
+##################################
 ### Need to spcify your own sample_template.tsv and sample_library.csv files accordingly!!
 ### Templates can be found in ./iSHARC/test
 samples: /cluster/home/yzeng/snakemake/iSHARC/test/demo_samples.tsv
 
 ## whether to integrate samples
 integration: TRUE       ## True or False
-samples_integr: /cluster/home/yzeng/snakemake/iSHARC/test/demo_samples_integration.tsv  ## all samples with group info to be integrated
+## all samples with group info to be integrated
+samples_integr: /cluster/home/yzeng/snakemake/iSHARC/test/demo_samples_integration.tsv
 
 
 #######################
 ### analyese parameters
 #######################
+## second round QC filtering
+second_round_filter: False    ## whether to perform second round cell filtering based on seleted QC metircs' MADs and suggested cutoffs
+second_round_cutoffs:
+    nCount_RNA_min: 500
+    nCount_RNA_max: 25000
+    nCount_ATAC_min: 1000
+    nCount_ATAC_max: 70000
+    pct_MT_max: 20
+    TSS_Enrichment_min: 1
+    Nucleosome_Signal_max: 2
+
+## whether to regress out the effects of cell cycyle for RNA assays
+regress_cell_cycle: True
+
+## key clustering parameter for RAN and ATAC_Clusters
+clustering_params:
+  knn_k: 20          # k for the k-nearest neighbor algorithm
+  dims_n: 50         # number of reduced dimentions (e.g., PCs) for functions: RunUMAP, FindNeighbors, FindMultiModalNeighbors
+  comm_res: 0.8       # value above (below) 1.0 if you want to obtain a larger (smaller) number of communities.
+
+##############################
+### parallelization parameters
+##############################
 threads: 12                  ## number of cores for parellelization, will be scaled download to the availabe cores
-second_round_filter: FALSE    ## whether to perform second round cell filtering based on seleted QC metircs' MADs and suggested cutoffs
-regress_cell_cycle: True     ## whether to regress out the effects of cell cycyle for RNA assays
+future_globals_maxSize: 12     ## in GB, you will need to adjust according your demanding and compupting resuoce

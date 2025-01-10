@@ -14,13 +14,18 @@ rule horizontal_integration_of_rna_across_multiple_samples:
     #    mem_mb=60000
     params:
         pipe_dir = config["pipe_dir"],
-        integr_list = config["samples_integr"]
+        integr_list = config["samples_integr"],
+        fgm = config["future_globals_maxSize"]
+    threads:
+        config["threads"]
     log:
         "logs/{sample}_horizontally_integrated_by_harmony_and_anchors.log"
     conda:
         "extra_env/R_pkgs.yaml"
     shell:
         "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/horizontal_integration_of_rna_across_multiple_samples.R "
+        "   --threads {threads} "
+        "  --future_globals_maxSize {params.fgm} "
         "   --samples_integration {params.integr_list}) 2> {log}"
 
 
@@ -36,13 +41,18 @@ rule horizontal_integration_of_atac_across_multiple_samples:
     #    mem_mb=60000
     params:
         pipe_dir = config["pipe_dir"],
-        integr_list = config["samples_integr"]
+        integr_list = config["samples_integr"],
+        fgm = config["future_globals_maxSize"]
+    threads:
+        config["threads"]
     log:
         "logs/{sample}_horizontally_integrated_by_harmony_and_anchors.log"
     conda:
         "extra_env/R_pkgs.yaml"
     shell:
         "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/horizontal_integration_of_atac_across_multiple_samples.R "
+        "   --threads {threads} "
+        "  --future_globals_maxSize {params.fgm} "
         "   --samples_integration {params.integr_list} "
         "   --pipe_dir {params.pipe_dir}) 2> {log}"
 
@@ -58,6 +68,8 @@ rule vertical_integration_of_multiple_harmonized_samples:
     #    mem_mb=60000
     params:
         pipe_dir = config["pipe_dir"]
+    threads:
+        config["threads"]
     log:
         "logs/{sample}_harmonized_vertically_integrated_by_WNN.log"
     conda:
@@ -80,6 +92,8 @@ rule vertical_integration_of_multiple_anchored_samples:
     #    mem_mb=60000
     params:
         pipe_dir = config["pipe_dir"]
+    threads:
+        config["threads"]
     log:
         "logs/{sample}_anchored_vertically_integrated_by_WNN.log"
     conda:
