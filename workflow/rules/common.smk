@@ -43,11 +43,12 @@ def get_rule_all_input():
     if config["integration"]:
         #integrated_rna = "integration/rna/RNA_integrated_by_anchors.RDS",
         #integrated_atac = "integration/atac/ATAC_integrated_by_anchors.RDS",
+        ## submit integraton and individual samples analysis all at once
         integrated_rna_atac_harmony =  "integrated_samples/wnn/harmony/RNA_ATAC_integrated_by_WNN.RDS",
         integrated_rna_atac_anchor =  "integrated_samples/wnn/anchor/RNA_ATAC_integrated_by_WNN.RDS",
         integrate_report = "integrated_samples/Integrated_samples_QC_and_Primary_Results.html",
-
-        return  extra_env + integrated_rna_atac_harmony + integrated_rna_atac_anchor # + integrate_report
+        individual_qc_report = expand("individual_samples/{samples}/{samples}_QC_and_Primary_Results.html", samples = SAMPLES_INTEGR["sample_id"]),
+        return  extra_env + integrated_rna_atac_harmony + integrated_rna_atac_anchor + individual_qc_report + integrate_report
 
     else:         ## process individual sample
         arc_out = expand("arc_count/{samples}/outs/atac_fragments.tsv.gz", samples = SAMPLES["sample_id"]),

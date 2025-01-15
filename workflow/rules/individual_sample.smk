@@ -59,7 +59,7 @@ rule vertical_integration_of_individual_sample:
         max_NS = config["second_round_cutoffs"]["Nucleosome_Signal_max"],
         knn_k = config["clustering_params"]["knn_k"],
         dims_n = config["clustering_params"]["dims_n"],
-        comm_res = config["clustering_params"]["comm_res"]    
+        comm_res = config["clustering_params"]["comm_res"]
     threads:
         config["threads"]
     log:
@@ -139,10 +139,10 @@ rule html_report_of_individual_sample:
         "extra_env/R_pkgs.yaml"
     shell:
         ## generating qc report named by sample id
-        "(cp {params.pipe_dir}/workflow/scripts/qc_and_primary_results_of_individual_sample.Rmd "
+        "(cp {params.pipe_dir}/workflow/scripts/qc_and_primary_results_report_of_individual_sample.Rmd "
         "    {params.work_dir}/individual_samples/{wildcards.sample}/{wildcards.sample}_QC_and_Primary_Results.Rmd && "
-        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/qc_and_primary_results_of_individual_sample.R "
+        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/qc_and_primary_results_report_of_individual_sample.R "
         "  --sample_id {wildcards.sample} "
         "  --extended_analyses_seurat_object {params.work_dir}/{input} "
-        "  --report_rmd_file {params.work_dir}/individual_samples/{wildcards.sample}/{wildcards.sample}_scMultiome_QC_and_Primary_Results_Report.Rmd "
+        "  --report_rmd_file {params.work_dir}/individual_samples/{wildcards.sample}/{wildcards.sample}_QC_and_Primary_Results.Rmd "
         "  --pipe_dir {params.pipe_dir}) 2> {log}"

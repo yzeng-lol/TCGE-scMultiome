@@ -23,6 +23,14 @@ parser <- ArgumentParser()
 ## by default ArgumentParser will add an help option
 parser$add_argument("-si", "--samples_integration", required=TRUE,
                     help = "list of sample IDs to be aggregated in TSV format")
+
+parser$add_argument("-knn_k", "--knn_k_param", type = "integer", default = 20,
+                    help = "k for the k-nearest neighbor algorithm")
+parser$add_argument("-dims_n", "--dimentions_n", type = "integer", default = 50,
+                    help = "number of reduced dimentions (e.g., PCs) for functions: RunUMAP, FindNeighbors, FindMultiModalNeighbors")
+parser$add_argument("-comm_res", "--community_resolution", type = "double", default = 0.8,
+                    help = "Value above (below) 1.0 if you want to obtain a larger (smaller) number of communities")
+
 parser$add_argument("-t", "--threads", type = "integer", default = 12,
                      help = "Number of cores for the parallelization")
 parser$add_argument("-fgm", "--future_globals_maxSize", type = "integer", default = 12,
@@ -31,6 +39,10 @@ parser$add_argument("-fgm", "--future_globals_maxSize", type = "integer", defaul
 ## assigning passing arguments
 args <- parser$parse_args()
 print(args)
+
+knn_k <- args$knn_k_param
+dims_n <- args$dimentions_n
+comm_res <- args$community_resolution
 
 
 ## output dir
@@ -100,11 +112,14 @@ for(i in 1: length(sample_ids))
 
     ## RNA_merged differ from existing SCT
     rna_merged <- SCTransform(rna_merged, assay = 'RNA', new.assay.name = 'RNA_integrated')
-    rna_merged <- RunPCA(rna_merged, npcs = 50, verbose = FALSE)
-    rna_merged <- RunUMAP(rna_merged, dims = 1:50, verbose = FALSE)
-    rna_merged <- FindNeighbors(rna_merged, dims = 1:50, reduction = "pca") %>% FindClusters()
+    rna_merged <- RunPCA(rna_merged, npcs = dims_n, verbose = FALSE)
+    rna_merged <- RunUMAP(rna_merged, dims = 1:dims_n, verbose = FALSE)
+    rna_merged <- FindNeighbors(rna_merged, dims = 1:dims_n, reduction = "pca", k.param = knn_k) %>% FindClusters(resolution = comm_res)
 
-    saveRDS(rna_merged, paste0(out_dir, "/RNA_integrated_by_merging.RDS"))
+    ## generalized the resolution
+    rna_merged$RNA_integrated_clusters <- rna_merged[[paste0("RNA_integrated_snn_res.", comm_res)]]
+
+    saveRDS(rna_merged, paste0(out_dir, "RNA_integrated_by_merging.RDS"))
   }
 
   ######################################
@@ -121,11 +136,14 @@ for(i in 1: length(sample_ids))
                                  assay.use = "RNA_integrated",
                                  reduction.save = "harmony")
 
-    rna_harmonized <- RunUMAP(rna_harmonized, reduction = "harmony", dims = 1:50, verbose = FALSE)
-    rna_harmonized <- FindNeighbors(rna_harmonized, reduction = "harmony", dims = 1:50,) %>%
-                      FindClusters()        ## clusters list in  "RNA_integrated_snn_res.0.8", which is differ from rna_merged$RNA_integrated_snn_res.0.8
+    rna_harmonized <- RunUMAP(rna_harmonized, reduction = "harmony", dims = 1:dims_n, verbose = FALSE)
+    rna_harmonized <- FindNeighbors(rna_harmonized, reduction = "harmony", dims = 1:dims_n, k.param = knn_k) %>%
+                      FindClusters(resolution = comm_res)        ## clusters list in  "RNA_integrated_snn_res.0.8", which is differ from rna_merged$RNA_integrated_snn_res.0.8
 
-    saveRDS(rna_harmonized, paste0(out_dir, "/RNA_integrated_by_harmony.RDS"))
+    ## generalized the resolution
+    rna_harmonized$RNA_integrated_clusters <- rna_harmonized[[paste0("RNA_integrated_snn_res.", comm_res)]]
+
+    saveRDS(rna_harmonized, paste0(out_dir, "RNA_integrated_by_harmony.RDS"))
   }
 
 
@@ -163,16 +181,19 @@ for(i in 1: length(sample_ids))
     rna_anchors <- FindIntegrationAnchors(object.list = seurat_object_list,
                                           #reference = c(1),
                                           reduction = "rpca",
-                                          dims = 1:50)
+                                          dims = 1:dims_n)
 
     ## Adding "SCT_Integrated" Assay
-    rna_anchored <- IntegrateData(anchorset = rna_anchors, new.assay.name = "RNA_integrated", dims = 1:50)
+    rna_anchored <- IntegrateData(anchorset = rna_anchors, new.assay.name = "RNA_integrated", dims = 1:dims_n)
     rna_anchored <- ScaleData(rna_anchored, verbose = FALSE)
-    rna_anchored <- RunPCA(rna_anchored, npcs = 50, verbose = FALSE)
-    rna_anchored <- RunUMAP(rna_anchored, dims = 1:50, verbose = FALSE)
-    rna_anchored <- FindNeighbors(rna_anchored, dims = 1:50, reduction = "pca") %>% FindClusters()
+    rna_anchored <- RunPCA(rna_anchored, npcs = dims_n, verbose = FALSE)
+    rna_anchored <- RunUMAP(rna_anchored, dims = 1:dims_n, verbose = FALSE)
+    rna_anchored <- FindNeighbors(rna_anchored, dims = 1:dims_n, reduction = "pca", k.param = knn_k) %>% FindClusters(resolution = comm_res)
 
-    saveRDS(rna_anchored, paste0(out_dir, "/RNA_integrated_by_anchors.RDS"))
+    ## generalized the resolution
+    rna_anchored$RNA_integrated_clusters <- rna_anchored[[paste0("RNA_integrated_snn_res.", comm_res)]]
+
+    saveRDS(rna_anchored, paste0(out_dir, "RNA_integrated_by_anchors.RDS"))
   }
 
 
@@ -191,21 +212,23 @@ for(i in 1: length(sample_ids))
                 label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("RNA_anchored")
 
   g <- p1 + p2 + p3 & theme(plot.title = element_text(hjust = 0.5))
-  ggsave(paste0(out_dir, "/Merged_Harmonized_Anchored_RNA_UMAPs_labeled_by_sample.pdf"), width = 12, height = 4)
+  ggsave(paste0(out_dir, "Merged_Harmonized_Anchored_RNA_UMAPs_labeled_by_sample.pdf"), width = 12, height = 4)
 
 
   ## UMAP plots group by clusters (different from assay to assay)
-  p1 <- DimPlot(rna_merged,  reduction = "umap", group.by = "RNA_integrated_snn_res.0.8",
+  p1 <- DimPlot(rna_merged,  reduction = "umap", group.by = "RNA_integrated_clusters",
                 label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("RNA_merged")
 
-  p2 <- DimPlot(rna_harmonized,  reduction = "umap", group.by = "RNA_integrated_snn_res.0.8",
+  p2 <- DimPlot(rna_harmonized,  reduction = "umap", group.by = "RNA_integrated_clusters",
                 label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("RNA_harmonized")
 
-  p3 <- DimPlot(rna_anchored,  reduction = "umap", group.by = "RNA_integrated_snn_res.0.8",
+  p3 <- DimPlot(rna_anchored,  reduction = "umap", group.by = "RNA_integrated_clusters",
                 label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("RNA_anchored")
 
   g <- p1 + p2 + p3 & theme(plot.title = element_text(hjust = 0.5))
-  ggsave(paste0(out_dir, "/Merged_Harmonized_Anchored_RNA_UMAPs_labeled_by_cluster.pdf"), width = 15, height = 4)
+  ggsave(paste0(out_dir, "Merged_Harmonized_Anchored_RNA_UMAPs_labeled_by_cluster.pdf"), width = 15, height = 4)
   }
+
+  print("The horizontal integration of RNA across multiple samples has been successfully completed!!")
 
 }

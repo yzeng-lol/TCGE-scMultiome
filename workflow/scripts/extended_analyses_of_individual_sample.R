@@ -258,7 +258,8 @@ if(TRUE){
                                pAdjustMethod = "BH",
                                use_internal_data =T)    ## using local build library "KEGG.db"
 
-    if(length(compKEGG@compareClusterResult$ID) > 0){
+    #if(length(compKEGG@compareClusterResult$ID) > 0){
+    if(length(compKEGG) > 0){
     p1 <- dotplot(compKEGG, title = "KEGG pathway enrichment") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
     ggsave(paste0(out_dir, sample_id, "_WNN_clusters_specific_DEGs_KEGG.pdf"), width = 12, height = 8)
     }
@@ -270,7 +271,8 @@ if(TRUE){
                              pvalueCutoff  = 0.05,
                              pAdjustMethod = "BH")
 
-    if(length(compGO@compareClusterResult$ID) > 0){
+    #if(length(compGO@compareClusterResult$ID) > 0){
+    if(length(compGO) > 0){
     p2 <- dotplot(compGO, title = "GO enrichment ") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
     ggsave(paste0(out_dir, sample_id, "_WNN_clusters_specific_DEGs_GO.pdf"), width = 12, height = 8)
     }
@@ -547,8 +549,12 @@ if(n_fit >= 1) {
                                             umap_method = "none",    ## without UMAP embedding
                                             graph_name = "Combined_DEGs_GRN")
 
-    g <- plot_network_graph(scMultiome_GRN , layout='fr') + ggtitle ("Combined_Clusters_Specific_DEGs")
-    ggsave(paste0(out_dir, sample_id, "_combined_WNN_clusters_specific_DEGs_GRN.pdf"))
+    ## saveRDS(scMultiome_GRN, paste0(out_dir, sample_id, "_scMultiome_GRN_for_testing.RDS"))
+
+    ## g <- plot_network_graph(scMultiome_GRN , layout='fr') + ggtitle ("Combined_Clusters_Specific_DEGs")
+    ## ggsave(paste0(out_dir, sample_id, "_combined_WNN_clusters_specific_DEGs_GRN.pdf"))
+    ## might encounter: Error in NetworkGraph.Network(GetNetwork(object, network = network), graph = graph) :
+    ## The requested graph "module_graph" does not exist.
 
     ## customize the GRN
     Combined_DEGs_GRN <-  NetworkGraph(scMultiome_GRN , graph='Combined_DEGs_GRN')  ## graph object
@@ -589,7 +595,12 @@ if(n_fit >= 1) {
 
     }
  }
+
+ print("The analysis of GRN based on combined cluster-specific DEGs has been successfully completed!!")
+
 }
+
+
 
 #######################################################
 ## infer GRN based on cluster-specific DEGs per cluster
@@ -689,8 +700,8 @@ if(n_fit >= 1) {
                                               umap_method = "none",    ## without UMAP embedding
                                               graph_name = "Specific_DEGs_GRN")
 
-          g <-  plot_network_graph(scMultiome_GRN, layout='fr')  + ggtitle(paste0("Cluster_",clusters[i], "_specific_DEGs"))
-          ggsave(paste0(out_dir, sample_id, "_WNN_cluster_",clusters[i], "_specific_DEGs_GRN.pdf"))
+          ## g <-  plot_network_graph(scMultiome_GRN, layout='fr')  + ggtitle(paste0("Cluster_",clusters[i], "_specific_DEGs"))
+          ## ggsave(paste0(out_dir, sample_id, "_WNN_cluster_",clusters[i], "_specific_DEGs_GRN.pdf"))
 
           ## customize the GRN
           Specific_DEGs_GRN <-  NetworkGraph(scMultiome_GRN , graph='Specific_DEGs_GRN')  ## graph object
@@ -732,6 +743,7 @@ if(n_fit >= 1) {
   }
 
   # saveRDS(grn_list, paste0(sample_id, "_cluster_specific_DEGs_GRN.RDS"))
+  print("The analysis of GRN based on cluster-specific DEGs has been successfully completed!!")
 
 }
 

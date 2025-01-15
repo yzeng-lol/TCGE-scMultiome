@@ -15,7 +15,10 @@ rule horizontal_integration_of_rna_across_multiple_samples:
     params:
         pipe_dir = config["pipe_dir"],
         integr_list = config["samples_integr"],
-        fgm = config["future_globals_maxSize"]
+        fgm = config["future_globals_maxSize"],
+        knn_k = config["clustering_params"]["knn_k"],
+        dims_n = config["clustering_params"]["dims_n"],
+        comm_res = config["clustering_params"]["comm_res"]
     threads:
         config["threads"]
     log:
@@ -25,7 +28,10 @@ rule horizontal_integration_of_rna_across_multiple_samples:
     shell:
         "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/horizontal_integration_of_rna_across_multiple_samples.R "
         "   --threads {threads} "
-        "  --future_globals_maxSize {params.fgm} "
+        "   --future_globals_maxSize {params.fgm} "
+        "   --knn_k_param {params.knn_k} "
+        "   --dimentions_n {params.dims_n} "
+        "   --community_resolution {params.comm_res} "
         "   --samples_integration {params.integr_list}) 2> {log}"
 
 
@@ -42,7 +48,10 @@ rule horizontal_integration_of_atac_across_multiple_samples:
     params:
         pipe_dir = config["pipe_dir"],
         integr_list = config["samples_integr"],
-        fgm = config["future_globals_maxSize"]
+        fgm = config["future_globals_maxSize"],
+        knn_k = config["clustering_params"]["knn_k"],
+        dims_n = config["clustering_params"]["dims_n"],
+        comm_res = config["clustering_params"]["comm_res"]
     threads:
         config["threads"]
     log:
@@ -52,7 +61,10 @@ rule horizontal_integration_of_atac_across_multiple_samples:
     shell:
         "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/horizontal_integration_of_atac_across_multiple_samples.R "
         "   --threads {threads} "
-        "  --future_globals_maxSize {params.fgm} "
+        "   --future_globals_maxSize {params.fgm} "
+        "   --knn_k_param {params.knn_k} "
+        "   --dimentions_n {params.dims_n} "
+        "   --community_resolution {params.comm_res} "
         "   --samples_integration {params.integr_list} "
         "   --pipe_dir {params.pipe_dir}) 2> {log}"
 
@@ -67,7 +79,11 @@ rule vertical_integration_of_multiple_harmonized_samples:
     #resources:
     #    mem_mb=60000
     params:
-        pipe_dir = config["pipe_dir"]
+        pipe_dir = config["pipe_dir"],
+        fgm = config["future_globals_maxSize"],
+        knn_k = config["clustering_params"]["knn_k"],
+        dims_n = config["clustering_params"]["dims_n"],
+        comm_res = config["clustering_params"]["comm_res"]
     threads:
         config["threads"]
     log:
@@ -76,9 +92,14 @@ rule vertical_integration_of_multiple_harmonized_samples:
         "extra_env/R_pkgs.yaml"
     shell:
         "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/vertical_integration_of_multiple_samples.R "
-        " --integration_method harmony "
-        " --integrated_rna  {input.integrated_rna} "
-        " --integrated_atac {input.integrated_atac}) 2> {log}"
+        "   --integration_method harmony "
+        "   --threads {threads} "
+        "   --future_globals_maxSize {params.fgm} "
+        "   --knn_k_param {params.knn_k} "
+        "   --dimentions_n {params.dims_n} "
+        "   --community_resolution {params.comm_res} "
+        "   --integrated_rna  {input.integrated_rna} "
+        "   --integrated_atac {input.integrated_atac}) 2> {log}"
 
 
 ## Integrate snRNA-seq and scATAC-seq for multiple samples (SEURAT anchors) with WNN
@@ -91,7 +112,11 @@ rule vertical_integration_of_multiple_anchored_samples:
     #resources:
     #    mem_mb=60000
     params:
-        pipe_dir = config["pipe_dir"]
+        pipe_dir = config["pipe_dir"],
+        fgm = config["future_globals_maxSize"],
+        knn_k = config["clustering_params"]["knn_k"],
+        dims_n = config["clustering_params"]["dims_n"],
+        comm_res = config["clustering_params"]["comm_res"]
     threads:
         config["threads"]
     log:
@@ -100,9 +125,14 @@ rule vertical_integration_of_multiple_anchored_samples:
         "extra_env/R_pkgs.yaml"
     shell:
         "(Rscript --vanilla {params.pipe_dir}/workflow/scripts/vertical_integration_of_multiple_samples.R "
-        " --integration_method anchor "
-        " --integrated_rna  {input.integrated_rna} "
-        " --integrated_atac {input.integrated_atac}) 2> {log}"
+        "   --integration_method anchor "
+        "   --threads {threads} "
+        "   --future_globals_maxSize {params.fgm} "
+        "   --knn_k_param {params.knn_k} "
+        "   --dimentions_n {params.dims_n} "
+        "   --community_resolution {params.comm_res} "
+        "   --integrated_rna  {input.integrated_rna} "
+        "   --integrated_atac {input.integrated_atac}) 2> {log}"
 
 
 ############################################
@@ -125,8 +155,9 @@ rule html_report_of_multiple_samples:
         "extra_env/R_pkgs.yaml"
     shell:
         ## generating qc report named by sample id
-        "(cp {params.pipe_dir}/workflow/scripts/integration_report.Rmd "
-        "    {params.work_dir}/integration/{wildcards.sample}_scMultiome_QC_and_Primary_Results_Report.Rmd && "
-        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/integration_report.R "
-        "  {params.work_dir}/integration/{wildcards.sample}_scMultiome_QC_and_Primary_Results_Report.Rmd "
-        "  {params.pipe_dir} {wildcards.sample} {params.work_dir}/integration) 2> {log}"
+        "(cp {params.pipe_dir}/workflow/scripts/qc_and_primary_results_report_of_multiple_samples.Rmd "
+        "    {params.work_dir}/integrated_samples/{wildcards.sample}_QC_and_Primary_Results.Rmd && "
+        "Rscript --vanilla {params.pipe_dir}/workflow/scripts/qc_and_primary_results_report_of_multiple_samples.R "
+        "  --report_rmd_file {params.work_dir}/integrated_samples/{wildcards.sample}_QC_and_Primary_Results.Rmd "
+        "  --integration_dir {params.work_dir}/integrated_samples "
+        "  --pipe_dir {params.pipe_dir}) 2> {log}"

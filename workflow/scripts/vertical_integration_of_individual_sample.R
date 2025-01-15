@@ -50,7 +50,7 @@ parser$add_argument("-knn_k", "--knn_k_param", type = "integer", default = 20,
                     help = "k for the k-nearest neighbor algorithm")
 parser$add_argument("-dims_n", "--dimentions_n", type = "integer", default = 50,
                     help = "number of reduced dimentions (e.g., PCs) for functions: RunUMAP, FindNeighbors, FindMultiModalNeighbors")
-parser$add_argument("-comm_res", "--community_resolution", type = "float", default = 0.8,
+parser$add_argument("-comm_res", "--community_resolution", type = "double", default = 0.8,
                     help = "Value above (below) 1.0 if you want to obtain a larger (smaller) number of communities")
 parser$add_argument("-t", "--threads", type = "integer", default = 12,
                      help = "Number of cores for the parallelization")
@@ -272,7 +272,7 @@ scMultiome <- FindClusters(scMultiome, graph.name = "wsnn", algorithm = 3, resol
 ## the default resolution (=0.8)
 scMultiome$RNA_clusters <- scMultiome[[paste0("SCT_snn_res.", comm_res)]]
 scMultiome$ATAC_clusters <- scMultiome[[paste0("ATAC_snn_res.", comm_res)]]
-scMultiome$WNN_clusters <- scMultiome[[paste0("wsnn_snn_res.", comm_res)]]
+scMultiome$WNN_clusters <- scMultiome[[paste0("wsnn_res.", comm_res)]]
 
 ## reorder cluster levels
 N_levels <- length(unique(scMultiome$RNA_clusters))

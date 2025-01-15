@@ -19,7 +19,7 @@ number of items to replace is not a multiple of replacement length
 This issue occurs during the integration of multiple samples with Seurat's FindIntegrationAnchors and IntegrateEmbeddings functions. The error typically arises when the number of anchor cells is less than the k.weight parameter, which specifies the number of neighbours to use when weighting anchors. You might need to remove the samples with low cell number. For more solutions, refer to the issue discussion [here](https://github.com/satijalab/seurat/issues/6341).
 
 
-##Error: Exceeding the Maximum Memory for Parallelization
+## Error: Exceeding the Maximum Memory for Parallelization
 If you encounter the error:
 
 ```r

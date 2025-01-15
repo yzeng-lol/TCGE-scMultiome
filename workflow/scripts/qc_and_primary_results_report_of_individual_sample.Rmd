@@ -31,6 +31,7 @@ title: "`r sample_id`_scMultiome_QC_and_Primary_Results"
 library(Seurat)
 library(Signac)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(plotly)
 library(knitr)
@@ -305,20 +306,27 @@ if(TRUE){
                                pAdjustMethod = "BH",
                                use_internal_data =T)    ## using local build library "KEGG.db"
 
+    if(length(compKEGG) > 0){
     p1 <- dotplot(compKEGG, showCategory = 2, title = "KEGG pathway enrichment") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
+    p1
+    }
 
+    ## GO enrichment
 
-     ## GO enrichment
     compGO <- compareCluster(geneCluster   = deg_list ,
                              fun           = "enrichGO",
                              OrgDb='org.Hs.eg.db',
                              pvalueCutoff  = 0.05,
                              pAdjustMethod = "BH")
 
+    if(length(compGO) > 0){
     p2 <- dotplot(compGO, showCategory = 1, title = "GO enrichment ") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
 
+    p2
+    }
+
     ## combine p1 and p2 by two rows
-    p1 / p2
+    ## p1 / p2
 }
 
 ```

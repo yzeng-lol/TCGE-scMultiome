@@ -25,6 +25,14 @@ parser$add_argument("-si", "--samples_integration", required=TRUE,
                     help = "list of sample IDs to be aggregated in TSV format")
 parser$add_argument("-pipe", "--pipe_dir", required=TRUE,
                     help = "The PATH to iSHARC pipeline, which local dependences included")
+
+parser$add_argument("-knn_k", "--knn_k_param", type = "integer", default = 20,
+                    help = "k for the k-nearest neighbor algorithm")
+parser$add_argument("-dims_n", "--dimentions_n", type = "integer", default = 50,
+                    help = "number of reduced dimentions (e.g., PCs) for functions: RunUMAP, FindNeighbors, FindMultiModalNeighbors")
+parser$add_argument("-comm_res", "--community_resolution", type = "double", default = 0.8,
+                    help = "Value above (below) 1.0 if you want to obtain a larger (smaller) number of communities")
+
 parser$add_argument("-t", "--threads", type = "integer", default = 12,
                     help = "Number of cores for the parallelization")
 parser$add_argument("-fgm", "--future_globals_maxSize", type = "integer", default = 12,
@@ -33,6 +41,10 @@ parser$add_argument("-fgm", "--future_globals_maxSize", type = "integer", defaul
 ## assigning passing arguments
 args <- parser$parse_args()
 print(args)
+
+knn_k <- args$knn_k_param
+dims_n <- args$dimentions_n
+comm_res <- args$community_resolution
 
 ## output dir
 out_dir <- paste0(getwd(), "/integrated_samples/atac/") ## with forward slash at the end
@@ -183,12 +195,15 @@ genome_info <- seqinfo(anno_gene)
     atac_merged <- FindTopFeatures(atac_merged, min.cutoff = 'q0')    ## q0 -> 100% ; 95 -> 95% cells
     atac_merged <- RunTFIDF(atac_merged)
     atac_merged <- RunSVD(atac_merged)
-    atac_merged <- RunUMAP(atac_merged, reduction = "lsi", dims = 2:50)
+    atac_merged <- RunUMAP(atac_merged, reduction = "lsi", dims = 2:dims_n)
 
-    atac_merged <- FindNeighbors(atac_merged , reduction = "lsi", dims = 2:50) %>%
-                   FindClusters(algorithm = 3)
+    atac_merged <- FindNeighbors(atac_merged , reduction = "lsi", dims = 2:dims_n, k.param = knn_k) %>%
+                   FindClusters(algorithm = 3, resolution = comm_res)
 
-    saveRDS(atac_merged, paste0(out_dir, "/ATAC_integrated_by_merging.RDS"))
+    ## generalized the resolution
+    atac_merged$ATAC_integrated_clusters <- atac_merged[[paste0("ATAC_integrated_snn_res.", comm_res)]]
+
+    saveRDS(atac_merged, paste0(out_dir, "ATAC_integrated_by_merging.RDS"))
 
     print("Multiple samples have been successfully merged!!")
 
@@ -206,11 +221,14 @@ genome_info <- seqinfo(anno_gene)
                                    project.dim = F,            # https://github.com/immunogenomics/harmony/issues/86
                                    reduction.save = "harmony")
 
-    atac_harmonized  <- RunUMAP(atac_harmonized, reduction = "harmony", dims = 2:50, verbose = FALSE)
-    atac_harmonized  <- FindNeighbors(atac_harmonized, reduction = "harmony", dims = 2:50) %>%
-                        FindClusters(algorithm = 3)
+    atac_harmonized  <- RunUMAP(atac_harmonized, reduction = "harmony", dims = 2:dims_n, verbose = FALSE)
+    atac_harmonized  <- FindNeighbors(atac_harmonized, reduction = "harmony", dims = 2:dims_n, k.param = knn_k) %>%
+                        FindClusters(algorithm = 3, resolution = comm_res)
 
-    saveRDS(atac_harmonized, paste0(out_dir, "/ATAC_integrated_by_harmony.RDS"))
+    ## generalized the resolution
+    atac_harmonized$ATAC_integrated_clusters <- atac_harmonized[[paste0("ATAC_integrated_snn_res.", comm_res)]]
+
+    saveRDS(atac_harmonized, paste0(out_dir, "ATAC_integrated_by_harmony.RDS"))
   }
 
   ############################################
@@ -249,7 +267,7 @@ genome_info <- seqinfo(anno_gene)
                               anchor.features = rownames(rownames(atac_merged)),
                               reduction = "rlsi",
                               k.filter = NA,    # default 200; How many neighbors (k) to use when filtering anchors; refer to https://github.com/satijalab/seurat/issues/7612
-                              dims = 2:50)
+                              dims = 2:dims_n)
 
 
 
@@ -263,12 +281,15 @@ genome_info <- seqinfo(anno_gene)
                                          )
 
     # create a new UMAP using the integrated embedings
-    atac_anchored  <- RunUMAP(atac_anchored, reduction = "lsi_integrated", dims = 2:50)
+    atac_anchored  <- RunUMAP(atac_anchored, reduction = "lsi_integrated", dims = 2:dims_n)
 
-    atac_anchored  <- FindNeighbors(atac_anchored, reduction = "lsi_integrated", dims = 2:50) %>%
-                      FindClusters(algorithm = 3)
+    atac_anchored  <- FindNeighbors(atac_anchored, reduction = "lsi_integrated", dims = 2:dims_n, k.param = knn_k) %>%
+                      FindClusters(algorithm = 3, resolution = comm_res)
 
-    saveRDS(atac_anchored, paste0(out_dir, "/ATAC_integrated_by_anchors.RDS"))
+    ## generalized the resolution
+    atac_anchored$ATAC_integrated_clusters <- atac_anchored[[paste0("ATAC_integrated_snn_res.", comm_res)]]
+
+    saveRDS(atac_anchored, paste0(out_dir, "ATAC_integrated_by_anchors.RDS"))
 
   }
 
@@ -281,27 +302,30 @@ genome_info <- seqinfo(anno_gene)
                   label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("ATAC_merged") + NoLegend()
 
     p2 <- DimPlot(atac_harmonized,  reduction = "umap", group.by = "sample_id",
-                label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("ATAC_harmonized") # + NoLegend()
+                label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("ATAC_harmonized") + NoLegend()
 
     p3 <- DimPlot(atac_anchored,  reduction = "umap", group.by = "sample_id",
                   label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("ATAC_anchored")
 
     g <- p1 + p2 + p3 & theme(plot.title = element_text(hjust = 0.5))
-    ggsave(paste0(out_dir, "/Merged_Harmonized_Anchored_ATAC_UMAPs_labeled_by_sample.pdf"), width = 12, height = 4)
+    ggsave(paste0(out_dir, "Merged_Harmonized_Anchored_ATAC_UMAPs_labeled_by_sample.pdf"), width = 12, height = 4)
 
 
     ## UMAP plots group by clusters (different from assay to assay)
 
-    p1 <- DimPlot(atac_merged,  reduction = "umap", group.by = "ATAC_integrated_snn_res.0.8",
+    p1 <- DimPlot(atac_merged,  reduction = "umap", group.by = "ATAC_integrated_clusters",
                   label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("ATAC_merged")
 
-    p2 <- DimPlot(atac_harmonized ,  reduction = "umap", group.by = "ATAC_integrated_snn_res.0.8",
+    p2 <- DimPlot(atac_harmonized ,  reduction = "umap", group.by = "ATAC_integrated_clusters",
                   label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("ATAC_harmonized")
 
-    p3 <- DimPlot(atac_anchored,  reduction = "umap", group.by = "ATAC_integrated_snn_res.0.8",
+    p3 <- DimPlot(atac_anchored,  reduction = "umap", group.by = "ATAC_integrated_clusters",
                   label = TRUE, label.size = 2.5, repel = TRUE)  + ggtitle("ATAC_anchored")
 
     g <- p1 + p2 + p3  & theme(plot.title = element_text(hjust = 0.5))
-    ggsave(paste0(out_dir, "/Merged_Harmonized_Anchored_ATAC_UMAPs_labeled_by_cluster.pdf"), width = 15, height = 4)
+    ggsave(paste0(out_dir, "Merged_Harmonized_Anchored_ATAC_UMAPs_labeled_by_cluster.pdf"), width = 15, height = 4)
   }
+
+  print("The horizontal integration of ATAC across multiple samples has been successfully completed!!")
+
 }

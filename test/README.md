@@ -21,7 +21,7 @@
 
 
 ### Step 2: Specify input configuration file by following the instructions
-A configuration YAML file is required to specify the paths to all input files and the parameters needed to successfully run the pipeline. Important: Always use absolute paths instead of relative paths in your configuration files. For more detailed instructions, refer to the [config_template](./test/config_template.yaml)
+A configuration YAML file is required to specify the paths to all input files and the parameters needed to successfully run the pipeline. Important: Always use absolute paths instead of relative paths in your configuration files. For more detailed instructions, refer to the [config_template](./config_template.yaml)
 
 
 ## Test datasets
