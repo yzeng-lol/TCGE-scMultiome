@@ -9,14 +9,20 @@ params:
   ## will be override by render
   readin: "Sample.RDS"
   sample_id: "Sample"
+  work_dir: "/path/to/workdir"
   pipe_dir: "/path/to/iSHARC"
+
 ---
 
 ```{r setup, include=FALSE}
 ##knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ## read in scMultiome.RDS
-scMultiome <- readRDS(params$readin)
+scMultiome <- readRDS(params$readin)    ## extended Seurat object
 sample_id <- params$sample_id
+scMultiome_initial <- readRDS(paste0(params$work_dir, "/individual_samples/", sample_id, "/", sample_id, "_initial_seurat_object.RDS"))
+
+#scMultiome_initial <- readRDS(paste0(sample_id, "_initial_seurat_object.RDS"))
+
 pipe_dir <- params$pipe_dir
 ```
 
@@ -61,19 +67,20 @@ library(KEGG.db)
 ```{r echo = FALSE}
 ## display selected metrics
 
-qc_df <- data.matrix(scMultiome[[c("nCount_RNA", "pct_MT", "nCount_ATAC", "TSS_Enrichment", "Nucleosome_Signal")]])
+qc_df <- data.matrix(scMultiome_initial[[c("nCount_RNA", "pct_MT", "nCount_ATAC", "TSS_Enrichment", "Nucleosome_Signal")]])
 probs_s <- c(0, 0.025, 0.25, 0.50, 0.75, 0.975, 1)
 qc_percentiles <- apply(qc_df, 2, function(x) quantile(x, probs = probs_s, na.rm = TRUE))
 
 #rownames(sum_adj) <- c("", "Q1", "Median", "Mean", "Q3", "Max")
-ti <- paste("Number of joint called cells by Cellranger-ARC: ", scMultiome@misc[["second_QC_assessment"]][1, 1])
+ti <- paste("Number of joint called cells by Cellranger-ARC: ", scMultiome_initial@misc[["second_QC_assessment"]][1, 1])
 kable(qc_percentiles, caption = ti)
 ```
 
 ### Violin plots for selected QC metrics
-NOTE: if the second-round QC filtering is enabled in the configuration file, the violin plots below display the distribution of QC metrics following the application of the second-round filtering criteria.
+The violin plots below display the distribution of QC metrics before the application of the second-round filtering criteria.
 ```{r  echo = FALSE, fig.width = 13}
-VlnPlot(scMultiome, features = c("nCount_RNA", "pct_MT", "nCount_ATAC", "TSS_Enrichment", "Nucleosome_Signal"),       ncol = 5, log = TRUE, pt.size = 0, group.by = "orig.ident") + NoLegend() & theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
+VlnPlot(scMultiome_initial, features = c("nCount_RNA", "pct_MT", "nCount_ATAC", "TSS_Enrichment", "Nucleosome_Signal"),       ncol = 5, log = TRUE, pt.size = 0, group.by = "orig.ident") + NoLegend() & theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
+rm(scMultiome_initial)
 ```
 
 ### Second-round QC filtering assessment

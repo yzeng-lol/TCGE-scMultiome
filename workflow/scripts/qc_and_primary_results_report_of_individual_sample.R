@@ -21,6 +21,8 @@ parser$add_argument("-s", "--sample_id", required=TRUE,
                     help = "Unique sample ID")
 parser$add_argument("-exo", "--extended_analyses_seurat_object", required=TRUE,
                     help = "the seurat object with extended analyses")
+parser$add_argument("-pipe", "--work_dir", required=TRUE,
+                    help = "The PATH to working directory")
 parser$add_argument("-pipe", "--pipe_dir", required=TRUE,
                     help = "The PATH to iSHARC pipeline, which local dependences included")
 parser$add_argument("-rmd", "--report_rmd_file", required=TRUE,
@@ -32,6 +34,7 @@ print(args)
 
 sample_id <- args$sample_id
 exo_file <- args$extended_analyses_seurat_object
+work_dir <- args$work_dir  ## for initial seurat object meta.data for QC
 pipe_dir <- args$pipe_dir  ## for DoMultiBarHeatmap
 rmd_file <- args$report_rmd_file
 
@@ -46,5 +49,5 @@ out_dir <- paste0("individual_samples/", sample_id)
 suppressMessages(library(rmarkdown))        ## for HTML QC report
 
 render(rmd_file, output_dir = out_dir,
-       params = list(readin = exo_file, sample_id = sample_id, pipe_dir = pipe_dir))
+       params = list(readin = exo_file, sample_id = sample_id, work_dir = work_dir, pipe_dir = pipe_dir))
 }

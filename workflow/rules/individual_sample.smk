@@ -159,4 +159,5 @@ rule html_report_of_individual_sample:
         "  --sample_id {wildcards.sample} "
         "  --extended_analyses_seurat_object {params.work_dir}/{input} "
         "  --report_rmd_file {params.work_dir}/individual_samples/{wildcards.sample}/{wildcards.sample}_QC_and_Primary_Results.Rmd "
+        "  --work_dir {params.work_dir} "
         "  --pipe_dir {params.pipe_dir}) 2> {log}"

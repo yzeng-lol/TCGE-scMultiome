@@ -28,4 +28,29 @@ A configuration YAML file is required to specify the paths to all input files an
 
 `dummy_data/`: Contains data for performing a quick dry run of the pipeline to verify that all configurations are correctly set. It also facilitates generating the DAG for the templates.   
 
-`lymph_node_lymphoma_14k`: The processed outputs for the flash-frozen lymph node with B cell lymphoma using Cell Ranger ARC 2.0.0, are available for download from [10x Genomics datasets](https://www.10xgenomics.com/datasets/fresh-frozen-lymph-node-with-b-cell-lymphoma-14-k-sorted-nuclei-1-standard-2-0-0). The lymph_node_lymphoma_14k_atac_fragments.tsv.gz, lymph_node_lymphoma_14k_atac_fragments.tsv.gz.tbi, lymph_node_lymphoma_14k_filtered_feature_bc_matrix.h5, and lymph_node_lymphoma_14k_per_barcode_metrics.csv are essential for a full test run on an individual sample. Ensure to remove the prefix "lymph_node_lymphoma_14k_" from all these files. The filenames must be consistent with the standard Cell Ranger ARC output format for a successful pipeline run. You can preview the HTML reports for the QC and primary results [here](https://html-preview.github.io/?url=https://github.com/yzeng-lol/iSHARC/blob/main/assets/lymphoma_14k_QC_and_Primary_Results.html).
+`lymph_node_lymphoma_14k`: The processed outputs for the flash-frozen lymph node with B cell lymphoma using Cell Ranger ARC 2.0.0, are available for download from [10x Genomics datasets](https://www.10xgenomics.com/datasets/fresh-frozen-lymph-node-with-b-cell-lymphoma-14-k-sorted-nuclei-1-standard-2-0-0). The following files are essential for a full test run on an individual sample:
+  - lymph_node_lymphoma_14k_atac_fragments.tsv.gz
+  - lymph_node_lymphoma_14k_atac_fragments.tsv.gz.tbi
+  - lymph_node_lymphoma_14k_filtered_feature_bc_matrix.h5
+  - lymph_node_lymphoma_14k_per_barcode_metrics.csv
+
+Ensure to remove the prefix "lymph_node_lymphoma_14k_" from all these files. The filenames must be consistent with the standard Cell Ranger ARC output format for a successful pipeline run. You can preview the HTML reports for the QC and primary results [here](https://html-preview.github.io/?url=https://github.com/yzeng-lol/iSHARC/blob/main/assets/lymphoma_14k_QC_and_Primary_Results.html).
+
+## Second round QC filtering
+The automatic QC metric cutoffs are determined based on the preset thresholds and the corresponding median ± 3*MAD (Median Absolute Deviation), as outlined below:  
+
+The defaults thresholds
+  - nCount_RNA_min: 1000
+  - nCount_RNA_max: 25000
+  - nCount_ATAC_min: 5000
+  - nCount_ATAC_max: 70000
+  - pct_MT_max: 20
+  - TSS_Enrichment_min: 1
+  - Nucleosome_Signal_max: 2
+
+QC metircs ranges  
+  - nCount_RNA: [max(nCount_RNA_min, median - 3MAD), min(nCount_RNA_max, median + 3MAD)]
+  - nCount_ATAC: [max(nCount_ATAC_min, median - 3MAD), min(nCount_ATAC_max, median + 3MAD)]
+  - pct_MT: < min(pct_MT_max, median + 3*MAD)
+  - TSS_Enrichment: > max(TSS_Enrichment_min, median - 3*MAD)
+  - Nucleosome_Signal: < min(Nucleosome_Signal_max, median + 3*MAD)
