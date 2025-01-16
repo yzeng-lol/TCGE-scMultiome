@@ -33,6 +33,20 @@ parser$add_argument("-macs", "--macs_dir", required=TRUE,
                     help = "The PATH to executable MSAC2")
 parser$add_argument("-pipe", "--pipe_dir", required=TRUE,
                     help = "The PATH to iSHARC pipeline, which local dependences included")
+parser$add_argument("-min_RNA", "--min_nCount_RNA", type = "integer", default = 1000,
+                    help = "Minimal nCount_RNA for second round QC filtering")
+parser$add_argument("-max_RNA", "--max_nCount_RNA", type = "integer", default = 25000,
+                    help = "Maximum nCount_RNA for second round QC filtering")
+parser$add_argument("-min_ATAC", "--min_nCount_ATAC", type = "integer", default = 5000,
+                    help = "Minimal nCount_ATAC for second round QC filtering")
+parser$add_argument("-max_ATAC", "--max_nCount_ATAC", type = "integer", default = 70000,
+                    help = "Maximum nCount_ATAC for second round QC filtering")
+parser$add_argument("-max_MT", "--max_pct_MT", type = "integer", default = 20,
+                    help = "Maximum percentage of MT for second round QC filtering")
+parser$add_argument("-mim_TSS", "--min_TSS_Enrichment", type = "integer", default = 1,
+                    help = "Minimal TSS enrichment score for second round QC filtering")
+parser$add_argument("-mim_NS", "--max_Nucleosome_Signal", type = "integer", default = 1,
+                    help = "Maximun nucleosome signal score for second round QC filtering")
 
 ## assigning passing arguments
 args <- parser$parse_args()
@@ -213,11 +227,17 @@ is_na <- is.na(scMultiome[[]])
 idx_na <- colSums(is_na) > 0
 f_plot <-  colnames(scMultiome[[]])[!idx_na][-1]
 
+## for all QC metrics
 g <- VlnPlot(scMultiome, features = f_plot,
              ncol = 4, log = TRUE, pt.size = 0, group.by = "orig.ident") + NoLegend()
 g <- g & theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
 ggsave(paste0(out_dir, sample_id, "_VlnPlot_4_QC_metrics.pdf"), width = 12, height = 8)
 
+## for selected QC metrics
+g <- VlnPlot(scMultiome, features = c("nCount_RNA", "pct_MT", "nCount_ATAC", "TSS_Enrichment", "Nucleosome_Signal"),
+             ncol = 4, log = TRUE, pt.size = 0, group.by = "orig.ident") + NoLegend()
+g <- g & theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
+ggsave(paste0(out_dir, sample_id, "_VlnPlot_4_QC_metrics.pdf"), width = 12, height = 8)
 
 ## percentiles and MADs for selected QC metrics
 ## NA removed
@@ -231,18 +251,21 @@ lower_3mad <- apply(qc_df, 2, function(x) median(x, na.rm = TRUE) - 3 * mad(x, n
 qc_out <- rbind(qc_percentiles, lower_3mad, upper_3mad)
 write.csv(qc_out, file = paste0(out_dir, sample_id, "_QC_metrics_percentiles_and_MADs.csv"))
 
+
+
+
 #######################################
 ## assess the automactic second-round QC
 {
 
 ## taking both MADs and preset cutoffs into account
-rna_upper <-  min(25000, upper_3mad["nCount_RNA"])
-rna_lower <-  max(500, lower_3mad["nCount_RNA"])     ## ensure at least 500 RNA
-atac_uppper <- min(70000, upper_3mad["nCount_ATAC"])
-atac_lower  <- max(1000, lower_3mad["nCount_ATAC"])   ## ensure at least 1000 ATAC
-mt_upper  <- min(20, upper_3mad["pct_MT"])
-tss_lower <- max(1, lower_3mad["TSS_Enrichment"])
-ns_upper  <- min(2, upper_3mad["Nucleosome_Signal"])
+rna_upper <-  min(args$max_nCount_RNA, upper_3mad["nCount_RNA"])
+rna_lower <-  max(args$min_nCount_RNA, lower_3mad["nCount_RNA"])
+atac_uppper <- min(args$max_nCount_ATAC, upper_3mad["nCount_ATAC"])
+atac_lower  <- max(args$min_nCount_ATAC, lower_3mad["nCount_ATAC"])
+mt_upper  <- min(args$max_MT, upper_3mad["pct_MT"])
+tss_lower <- max(args$min_TSS_Enrichment, lower_3mad["TSS_Enrichment"])
+ns_upper  <- min(args$max_Nucleosome_Signal, upper_3mad["Nucleosome_Signal"])
 
 qc_df <- data.frame(qc_df)   ## convert to data frame
 
@@ -271,8 +294,11 @@ rownames(cells_2filtered) <- c("Number of cells", "Fraction of 1st filtered cell
 colnames(cells_2filtered) <- c("1st_joint_filtered", "2nd_filtered_by_RNA", "2nd_filtered_by_ATAC",        "2nd_filtered_by_Both")
 
 scMultiome@misc[["second_QC_assessment"]] <- cells_2filtered
-
 cells_2filtered
+
+## save inital meta.data as misc
+## scMultiome@misc[["initial_meta_data"]] <- scMultiome@meta.data
+
 
 # Misc(scMultiome, slot = "second_QC_assessment") <- cells_2filtered  ## list to save as tbl_graph object
 # will be added as a list

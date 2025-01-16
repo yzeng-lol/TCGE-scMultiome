@@ -15,7 +15,14 @@ rule initializaion_of_individual_sample:
         mem_mb=60000
     params:
         pipe_dir = config["pipe_dir"],
-        macs_dir = env_dir
+        macs_dir = env_dir,
+        min_RNA = config["second_round_cutoffs"]["nCount_RNA_min"],
+        max_RNA = config["second_round_cutoffs"]["nCount_RNA_max"],
+        min_ATAC = config["second_round_cutoffs"]["nCount_ATAC_min"],
+        max_ATAC = config["second_round_cutoffs"]["nCount_ATAC_max"],
+        max_MT = config["second_round_cutoffs"]["pct_MT_max"],
+        min_TSS = config["second_round_cutoffs"]["TSS_Enrichment_min"],
+        max_NS = config["second_round_cutoffs"]["Nucleosome_Signal_max"]
     log:
         "logs/{sample}_initialization.log"
     conda:
@@ -26,6 +33,13 @@ rule initializaion_of_individual_sample:
         "  --sample_id {wildcards.sample} --feature_barcode_matrix {input.fbm} "
         "  --per_barcode_metrics {input.pbm}  --atac_file {input.atac} "
         "  --macs_dir {params.macs_dir}/bin/macs2 "
+        "  --min_nCount_RNA {params.min_RNA} "
+        "  --max_nCount_RNA {params.max_RNA} "
+        "  --min_nCount_ATAC {params.min_ATAC} "
+        "  --max_nCount_ATAC {params.max_ATAC} "
+        "  --max_pct_MT {params.max_MT} "
+        "  --min_TSS_Enrichment {params.min_TSS} "
+        "  --max_Nucleosome_Signal {params.max_NS} "
         "  --pipe_dir {params.pipe_dir}) 2> {log}"
 
 

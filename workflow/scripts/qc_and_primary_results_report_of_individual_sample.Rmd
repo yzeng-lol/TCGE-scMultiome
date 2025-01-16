@@ -66,23 +66,24 @@ probs_s <- c(0, 0.025, 0.25, 0.50, 0.75, 0.975, 1)
 qc_percentiles <- apply(qc_df, 2, function(x) quantile(x, probs = probs_s, na.rm = TRUE))
 
 #rownames(sum_adj) <- c("", "Q1", "Median", "Mean", "Q3", "Max")
-ti <- paste("Number of joint called cells by Cellranger-ARC: ", ncol(scMultiome))
+ti <- paste("Number of joint called cells by Cellranger-ARC: ", scMultiome@misc[["second_QC_assessment"]][1, 1])
 kable(qc_percentiles, caption = ti)
 ```
 
 ### Violin plots for selected QC metrics
+NOTE: if the second-round QC filtering is enabled in the configuration file, the violin plots below display the distribution of QC metrics following the application of the second-round filtering criteria.
 ```{r  echo = FALSE, fig.width = 13}
 VlnPlot(scMultiome, features = c("nCount_RNA", "pct_MT", "nCount_ATAC", "TSS_Enrichment", "Nucleosome_Signal"),       ncol = 5, log = TRUE, pt.size = 0, group.by = "orig.ident") + NoLegend() & theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
 ```
 
 ### Second-round QC filtering assessment
-The automatic QC metric cutoffs are determined based on the suggested thresholds and the corresponding median ± 3*MAD (Median Absolute Deviation), as outlined below. The table displays the number of cells retained after applying the corresponding QC filters. The subsequent results for the cells in this report depend on whether the second-round QC filtering is enabled in the configuration file.
+The automatic QC metric cutoffs are determined based on the preset thresholds and the corresponding median ± 3*MAD (Median Absolute Deviation), as outlined below. The table displays the number of cells retained after applying the corresponding QC filters. The subsequent results for the cells in this report depend on whether the second-round QC filtering is enabled in the configuration file.
 
-* nCount_RNA:  [max(500, median - 3*MAD),  min(25000, median + 3*MAD)]
-* nCount_ATAC: [max(1000, median - 3*MAD), min(70000, median + 3*MAD)]
-* pct_MT:  < min(20, median + 3*MAD)
-* TSS_Enrichment: > max(1, median - 3*MAD)
-* Nucleosome_Signal: < min(2, median + 3*MAD)
+* nCount_RNA:  [max(nCount_RNA_min, median - 3*MAD),  min(nCount_RNA_max, median + 3*MAD)]
+* nCount_ATAC: [max(nCount_ATAC_min, median - 3*MAD), min(nCount_ATAC_max, median + 3*MAD)]
+* pct_MT:  < min(pct_MT_max, median + 3*MAD)
+* TSS_Enrichment: > max(TSS_Enrichment_min, median - 3*MAD)
+* Nucleosome_Signal: < min(Nucleosome_Signal_max, median + 3*MAD)
 
 ```{r echo = FALSE}
 
@@ -278,8 +279,44 @@ DoMultiBarHeatmap(scMultiome, features = scMultiome@assays$SCT@misc$DEGs_top5, a
 
 ```
 
-### Functional enrichment analysis for WNN cluster-specific genes
-```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 15, fig.height= 12}
+### Functional enrichment analysis (GO) for WNN cluster-specific genes
+```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 15, fig.height= 7}
+
+if(TRUE){
+    ## ID convert function
+    id_convert <- function(x){
+      library(clusterProfiler)
+      g_symbol <- rownames(x)
+      if(length(g_symbol) <= 10){
+        ## requiring at least 10 genes
+        g_ezid <- NULL
+      } else {
+      g_con <- bitr(g_symbol, fromType = "SYMBOL", toType = "ENTREZID", OrgDb="org.Hs.eg.db")
+      g_ezid <- g_con$ENTREZID
+      }
+
+      return(g_ezid)
+    }
+
+    deg_list <- lapply(scMultiome@assays$SCT@misc$DEGs, id_convert)
+
+    compGO <- compareCluster(geneCluster   = deg_list ,
+                             fun           = "enrichGO",
+                             OrgDb='org.Hs.eg.db',
+                             pvalueCutoff  = 0.05,
+                             pAdjustMethod = "BH")
+
+    if(length(compGO) > 0){
+    p2 <- dotplot(compGO, showCategory = 1, title = "GO enrichment ") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
+
+    p2
+    }
+}
+
+```
+
+### Functional enrichment analysis (KEGG) for WNN cluster-specific genes
+```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.width = 15, fig.height= 7}
 
 if(TRUE){
     ## ID convert function
@@ -310,26 +347,10 @@ if(TRUE){
     p1 <- dotplot(compKEGG, showCategory = 2, title = "KEGG pathway enrichment") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
     p1
     }
-
-    ## GO enrichment
-
-    compGO <- compareCluster(geneCluster   = deg_list ,
-                             fun           = "enrichGO",
-                             OrgDb='org.Hs.eg.db',
-                             pvalueCutoff  = 0.05,
-                             pAdjustMethod = "BH")
-
-    if(length(compGO) > 0){
-    p2 <- dotplot(compGO, showCategory = 1, title = "GO enrichment ") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
-
-    p2
-    }
-
-    ## combine p1 and p2 by two rows
-    ## p1 / p2
 }
 
 ```
+
 
 
 ## Cluster-specific regulatory regions

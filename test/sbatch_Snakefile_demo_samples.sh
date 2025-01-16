@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p all              ## Specify SLURM partition for job submssion
-#SBATCH -t 2-00:00:00
+#SBATCH -t 1-00:00:00
 #SBATCH --mem=10G
 #SBATCH -J submit_snakemake_%j
 #SBATCH -o submit_snakemake_%j.out
@@ -33,7 +33,7 @@ snakemake --snakefile /cluster/home/yzeng/snakemake/iSHARC/workflow/Snakefile \
           --configfile /cluster/home/yzeng/snakemake/iSHARC/test/config_demo_samples.yaml \
           --cluster-config /cluster/home/yzeng/snakemake/iSHARC/workflow/config/cluster_std_err.json \
           --keep-going  --use-conda  --conda-prefix ${CONDA_PREFIX}_extra_env \
-          --cluster "sbatch -p veryhimem -c 12 --mem=80G -J {cluster.jid} -o {cluster.std} -e {cluster.err} -t 2-00:00:00" \
+          --cluster "sbatch -p veryhimem -c 12 --mem=80G -J {cluster.jid} -o {cluster.std} -e {cluster.err} -t 1-00:00:00" \
           --latency-wait 60 --jobs 6 -p
 
 # Using Higher Memory: For large dataset integration, allocate more memory (e.g., --mem=600G).

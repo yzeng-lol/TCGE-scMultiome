@@ -30,11 +30,11 @@ parser$add_argument("-iso", "--initial_seurat_object", required=TRUE,
                     help = "the initialized seurat object with RNA and ATAC assays")
 parser$add_argument("-srf", "--second_round_filter", type = "logical", default = TRUE,
                     help = "whether perform second round cell filtering based on seleted QC metircs' MADs and suggested cutoffs")
-parser$add_argument("-min_RNA", "--min_nCount_RNA", type = "integer", default = 500,
+parser$add_argument("-min_RNA", "--min_nCount_RNA", type = "integer", default = 1000,
                     help = "Minimal nCount_RNA for second round QC filtering")
 parser$add_argument("-max_RNA", "--max_nCount_RNA", type = "integer", default = 25000,
                     help = "Maximum nCount_RNA for second round QC filtering")
-parser$add_argument("-min_ATAC", "--min_nCount_ATAC", type = "integer", default = 1000,
+parser$add_argument("-min_ATAC", "--min_nCount_ATAC", type = "integer", default = 5000,
                     help = "Minimal nCount_ATAC for second round QC filtering")
 parser$add_argument("-max_ATAC", "--max_nCount_ATAC", type = "integer", default = 70000,
                     help = "Maximum nCount_ATAC for second round QC filtering")
@@ -265,7 +265,7 @@ scMultiome  <- FindNeighbors(scMultiome, reduction = "lsi", dims = 2:dims_n,  k.
 ##############################################
 {
 ## run WNN
-scMultiome <- FindMultiModalNeighbors(scMultiome, reduction.list = list("pca", "lsi"), dims.list = list(1:dims_n, 2:dims_n))
+scMultiome <- FindMultiModalNeighbors(scMultiome, reduction.list = list("pca", "lsi"), dims.list = list(1:dims_n, 2:dims_n), k.nn = knn_k)
 scMultiome <- RunUMAP(scMultiome, nn.name = "weighted.nn", reduction.name = "umap.wnn", reduction.key = "wnnUMAP_")
 scMultiome <- FindClusters(scMultiome, graph.name = "wsnn", algorithm = 3, resolution = comm_res)
 

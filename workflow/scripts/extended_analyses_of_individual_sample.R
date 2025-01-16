@@ -260,7 +260,7 @@ if(TRUE){
 
     #if(length(compKEGG@compareClusterResult$ID) > 0){
     if(length(compKEGG) > 0){
-    p1 <- dotplot(compKEGG, title = "KEGG pathway enrichment") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
+    p1 <- dotplot(compKEGG, showCategory = 1, title = "KEGG pathway enrichment") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
     ggsave(paste0(out_dir, sample_id, "_WNN_clusters_specific_DEGs_KEGG.pdf"), width = 12, height = 8)
     }
 
@@ -273,7 +273,7 @@ if(TRUE){
 
     #if(length(compGO@compareClusterResult$ID) > 0){
     if(length(compGO) > 0){
-    p2 <- dotplot(compGO, title = "GO enrichment ") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
+    p2 <- dotplot(compGO, showCategory = 2, title = "GO enrichment ") + labs(x = "") + scale_x_discrete(guide = guide_axis(angle = 45))
     ggsave(paste0(out_dir, sample_id, "_WNN_clusters_specific_DEGs_GO.pdf"), width = 12, height = 8)
     }
 }
