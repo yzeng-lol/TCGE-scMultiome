@@ -1,5 +1,6 @@
 #Debugging.txt
 .DS_Store
 ._.DS_Store
+.gitignore
 .snakemake/
 dev_and_testing.log
